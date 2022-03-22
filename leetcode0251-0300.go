@@ -4,10 +4,37 @@ import (
 	"container/heap"
 	"errors"
 	"fmt"
+	"programs/internal/algorithmingo/algorithm"
 	"programs/kit/common"
 	"sort"
+	"strconv"
 	"strings"
 )
+
+// leetcode257
+func BinaryTreePaths(root *algorithm.TreeNode) []string {
+	var dfs func(*algorithm.TreeNode, string)
+	res := []string{}
+	dfs = func(root *algorithm.TreeNode, cur string) {
+		if root != nil {
+			cur += strconv.Itoa(root.Val)
+		}
+		if root.Left == nil && root.Right == nil {
+			res = append(res, cur)
+			return
+		}
+		cur += "->"
+		if root.Left != nil {
+			dfs(root.Left, cur)
+		}
+		if root.Right != nil {
+			dfs(root.Right, cur)
+		}
+	}
+	dfs(root, "")
+	fmt.Println(res)
+	return res
+}
 
 // leetcode258
 func AddDigits(num int) int {

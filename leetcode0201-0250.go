@@ -524,6 +524,118 @@ func CountDigitOne(n int) int {
 	return res
 }
 
+// leetcode236
+func LowestCommonAncestor(root, p, q *algorithm.TreeNode) *algorithm.TreeNode {
+	//  使用DFS遍历，时间复杂度O(N)，空间复杂度O(N)
+	//              1
+	//         2          3
+	//      4    5     *6   7
+	//    8  9 *10 11 12 13 14 15
+	// 返回不为空(nil) 一定是说明找了某个节点
+	// 在此，5的左子树找到了，所以其返回值非空，2的返回值非空
+	// 3的返回值非空，由于2，3的返回值非空，所以其最近公共祖先为1
+	var dfs func(root, p, q *algorithm.TreeNode) *algorithm.TreeNode
+	dfs = func(root, p, q *algorithm.TreeNode) *algorithm.TreeNode {
+		if root == nil || root.Val == p.Val || root.Val == q.Val {
+			return root
+		}
+		left := dfs(root.Left, p, q)
+		right := dfs(root.Right, p, q)
+		// 一共四种情况
+		// 在左、右子树中找到了p或q，一边一个的情况
+		// 说明当前节点就是其最近公共祖先
+		if left != nil && right != nil {
+			return root
+		}
+		// left无right有，那么返回right，return到上一层
+		if left == nil {
+			// 右子树中含有目标节点
+			return right
+		}
+		// left有right无，那么返回left，返回到上一层
+		if right == nil {
+			return left
+		}
+		// 都没找到直接返回nil
+		return nil
+	}
+	return dfs(root, p, q)
+}
+func LowestCommonAncestor2(root, p, q *algorithm.TreeNode) *algorithm.TreeNode {
+	// 使用hash表存储父节点信息
+	parent := make(map[int]*algorithm.TreeNode)
+	visited := make(map[int]bool)
+	var dfs func(root *algorithm.TreeNode)
+	dfs = func(root *algorithm.TreeNode) {
+		if root == nil {
+			return
+		}
+		if root.Left != nil {
+			parent[root.Left.Val] = root
+		}
+		if root.Right != nil {
+			parent[root.Right.Val] = root
+		}
+		dfs(root.Left)
+		dfs(root.Right)
+	}
+	dfs(root)
+	for p != nil {
+		visited[p.Val] = true
+		p = parent[p.Val]
+	}
+
+	for q != nil {
+		if visited[q.Val] {
+			return q
+		}
+		q = parent[q.Val]
+	}
+	return nil
+}
+
+func LowestCommonAncestor3(root, p, q *algorithm.TreeNode) *algorithm.TreeNode {
+	// 倍增思想前篇
+	// 首先需要遍历一遍，获得father和depth
+	depth := make(map[int]int)
+	father := make(map[int]*algorithm.TreeNode)
+	var dfs func(root *algorithm.TreeNode, d int)
+	dfs = func(root *algorithm.TreeNode, d int) {
+		if root == nil {
+			return
+		}
+		if root.Left != nil {
+			father[root.Left.Val] = root
+			depth[root.Left.Val] = d + 1
+			dfs(root.Left, d+1)
+		}
+		if root.Right != nil {
+			father[root.Right.Val] = root
+			depth[root.Right.Val] = d + 1
+			dfs(root.Right, d+1)
+		}
+	}
+	dfs(root, 0)
+	// 始终保持p的深度小
+	if depth[p.Val] > depth[q.Val] {
+		p, q = q, p
+	}
+	for depth[q.Val] > depth[p.Val] {
+		q = father[q.Val]
+	}
+	//现在p,q深度相同， 同时往上
+	for p.Val != q.Val {
+		p = father[p.Val]
+		q = father[q.Val]
+	}
+	return p
+}
+
+//倍增法 https://www.cnblogs.com/darlingroot/p/10597611.html
+func LowestCommonAncestor4(root, p, q *algorithm.TreeNode) *algorithm.TreeNode {
+
+}
+
 // leetcode237
 
 func DeleteNode(node *algorithm.ListNode) {
