@@ -5,6 +5,23 @@ import (
 	"programs/kit/common"
 )
 
+// leetcode617
+func MergeTrees(root1 *algorithm.TreeNode, root2 *algorithm.TreeNode) *algorithm.TreeNode {
+	if root1 == nil && root2 == nil {
+		return nil
+	}
+	if root1 == nil || root2 == nil {
+		if root1 == nil {
+			return root2
+		}
+		return root1
+	}
+	root1.Val += root2.Val
+	root1.Left = MergeTrees(root1.Left, root2.Left)
+	root1.Right = MergeTrees(root1.Right, root2.Right)
+	return root1
+}
+
 // leetcode629
 func KInversePairs(n, k int) int {
 	const mod int = 1e9 + 7

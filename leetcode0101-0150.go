@@ -67,6 +67,43 @@ func MaxDepth104(root *algorithm.TreeNode) int {
 	return rightDepth + 1
 }
 
+func BuildTree105(preorder []int, inorder []int) *algorithm.TreeNode {
+	if len(preorder) == 0 {
+		return nil
+	}
+	target := preorder[0]
+	idx := -1
+	for i := 0; i < len(inorder); i++ {
+		if inorder[i] == target {
+			idx = i
+		}
+	}
+	node := &algorithm.TreeNode{Val: target}
+	node.Left = BuildTree(preorder[1:1+idx], inorder[:idx])
+	node.Right = BuildTree(preorder[1+idx:], inorder[idx+1:])
+	return node
+}
+
+// leetcode106
+func BuildTree106(inorder []int, postorder []int) *algorithm.TreeNode {
+	//后序遍历，最后一个一定是顶点
+	//找postorder[last]在inorder中的位置
+	if len(postorder) <= 0 {
+		return nil
+	}
+	target := postorder[len(postorder)-1]
+	idx := -1
+	for i := 0; i < len(inorder); i++ {
+		if inorder[i] == target {
+			idx = i
+		}
+	}
+	node := &algorithm.TreeNode{Val: target}
+	node.Left = BuildTree(inorder[:idx], postorder[:idx])
+	node.Right = BuildTree(inorder[idx+1:], postorder[idx:len(postorder)-1])
+	return node
+}
+
 // leetcode107
 func LevelOrderBottom(root *algorithm.TreeNode) [][]int {
 	if root == nil {
@@ -136,6 +173,54 @@ func MinDepth(root *algorithm.TreeNode) int {
 		return left + 1
 	}
 	return right + 1
+}
+
+// leetcode112
+func HasPathSum(root *algorithm.TreeNode, targetSum int) bool {
+	res := false
+
+	var dfs func(root *algorithm.TreeNode, sum int)
+	dfs = func(root *algorithm.TreeNode, sum int) {
+		if root == nil {
+			return
+		}
+		if root.Left == nil && root.Right == nil && !res {
+			res = targetSum == sum+root.Val
+		}
+		dfs(root.Left, sum+root.Val)
+		dfs(root.Right, sum+root.Val)
+	}
+	dfs(root, 0)
+	return res
+}
+
+// leetcode113
+func PathSum(root *algorithm.TreeNode, targetSum int) [][]int {
+	var dfs func(root *algorithm.TreeNode)
+	curPath := []int{}
+	curSum := 0
+	res := [][]int{}
+	dfs = func(root *algorithm.TreeNode) {
+		if root == nil {
+			return
+		}
+		curPath = append(curPath, root.Val)
+		curSum += root.Val
+		// 是叶子节点
+		if root.Left == nil && root.Right == nil {
+			if curSum == targetSum {
+				aPath := make([]int, len(curPath))
+				copy(aPath, curPath)
+				res = append(res, aPath)
+			}
+		}
+		dfs(root.Left)
+		dfs(root.Right)
+		curPath = curPath[:len(curPath)-1]
+		curSum -= root.Val
+	}
+	dfs(root)
+	return res
 }
 
 // leetcode116

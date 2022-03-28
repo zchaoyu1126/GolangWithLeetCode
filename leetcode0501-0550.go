@@ -9,6 +9,46 @@ import (
 	"strings"
 )
 
+// Leetcode501
+func FindMode(root *algorithm.TreeNode) []int {
+	var prev *algorithm.TreeNode
+	var inorder func(node *algorithm.TreeNode)
+	mp := make(map[int][]int)
+	curReNum := 1
+	maxReNum := 0
+	inorder = func(node *algorithm.TreeNode) {
+		if node == nil {
+			return
+		}
+		inorder(node.Left)
+		if prev != nil {
+			if prev.Val == node.Val {
+				curReNum++
+			} else {
+				if curReNum >= maxReNum {
+					if _, ok := mp[curReNum]; !ok {
+						mp[curReNum] = []int{}
+					}
+					mp[curReNum] = append(mp[curReNum], prev.Val)
+					maxReNum = curReNum
+				}
+				curReNum = 1
+			}
+		}
+		prev = node
+		inorder(node.Right)
+	}
+	inorder(root)
+	if curReNum >= maxReNum {
+		if _, ok := mp[curReNum]; !ok {
+			mp[curReNum] = []int{}
+		}
+		mp[curReNum] = append(mp[curReNum], prev.Val)
+		maxReNum = curReNum
+	}
+	return mp[maxReNum]
+}
+
 // leetcode503
 func NextGreaterElements4(nums []int) []int {
 	length := len(nums)
@@ -62,6 +102,27 @@ func CheckPerfectNumber(num int) bool {
 		}
 	}
 	return sum == num
+}
+
+// leetcode513
+func FindBottomLeftValue(root *algorithm.TreeNode) int {
+	res, curDepth := 0, -1
+	var dfs func(node *algorithm.TreeNode, d int)
+	dfs = func(node *algorithm.TreeNode, d int) {
+		if node == nil {
+			return
+		}
+		if node.Left == nil && node.Right == nil {
+			if curDepth < d {
+				curDepth = d
+				res = node.Val
+			}
+		}
+		dfs(node.Left, d+1)
+		dfs(node.Right, d+1)
+	}
+	dfs(root, 0)
+	return res
 }
 
 // leetcode515
@@ -232,6 +293,26 @@ func FindLongestWord(s string, dictionary []string) string {
 	}
 	sort.Sort(StringSlice(mp))
 	return mp[0]
+}
+
+// leetcode530
+func GetMinimumDifference(root *algorithm.TreeNode) int {
+	res := INT_MAX
+	var prev *algorithm.TreeNode
+	var inorderTraversal func(node *algorithm.TreeNode)
+	inorderTraversal = func(node *algorithm.TreeNode) {
+		if node == nil {
+			return
+		}
+		inorderTraversal(node.Left)
+		if prev != nil && node.Val-prev.Val < res {
+			res = node.Val - prev.Val
+		}
+		prev = node
+		inorderTraversal(node.Right)
+	}
+	inorderTraversal(root)
+	return res
 }
 
 // leetcode539

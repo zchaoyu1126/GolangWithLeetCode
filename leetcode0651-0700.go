@@ -3,8 +3,26 @@ package leetcode
 import (
 	"fmt"
 	"math"
+	"programs/internal/algorithmingo/algorithm"
 	"strings"
 )
+
+// leetcode654
+func ConstructMaximumBinaryTree(nums []int) *algorithm.TreeNode {
+	if len(nums) == 0 {
+		return nil
+	}
+	idx := 0
+	for i := 0; i < len(nums); i++ {
+		if nums[i] > nums[idx] {
+			idx = i
+		}
+	}
+	node := &algorithm.TreeNode{Val: nums[idx]}
+	node.Left = ConstructMaximumBinaryTree(nums[:idx])
+	node.Right = ConstructMaximumBinaryTree(nums[idx+1:])
+	return node
+}
 
 // leetcode686
 func RepeatedStringMatch(a string, b string) int {
@@ -72,4 +90,19 @@ func MaxSumOfThreeSubarrays(nums []int, k int) []int {
 	}
 	ans := []int{p1, p2, p3}
 	return ans
+}
+
+// leetcode700
+func SearchBST700(root *algorithm.TreeNode, val int) *algorithm.TreeNode {
+	cur := root
+	for cur != nil {
+		if cur.Val == val {
+			return cur
+		} else if cur.Val < val {
+			cur = cur.Right
+		} else {
+			cur = cur.Left
+		}
+	}
+	return nil
 }

@@ -6,6 +6,25 @@ import (
 	"strconv"
 )
 
+// leetcode404
+func SumOfLeftLeaves(root *algorithm.TreeNode) int {
+	sum := 0
+	var dfs func(node *algorithm.TreeNode, flag int)
+	dfs = func(node *algorithm.TreeNode, flag int) {
+		if node == nil {
+			return
+		}
+		if node.Left == nil && node.Right == nil && flag == 1 {
+			sum += node.Val
+			return
+		}
+		dfs(node.Left, 1)
+		dfs(node.Right, 2)
+	}
+	dfs(root, 0)
+	return sum
+}
+
 // leetcode412
 func FizzBuzz(n int) []string {
 	res := []string{}

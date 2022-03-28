@@ -633,7 +633,87 @@ func LowestCommonAncestor3(root, p, q *algorithm.TreeNode) *algorithm.TreeNode {
 
 //倍增法 https://www.cnblogs.com/darlingroot/p/10597611.html
 func LowestCommonAncestor4(root, p, q *algorithm.TreeNode) *algorithm.TreeNode {
+	// 节点数目2~10^5
+	// 步长设置为20
+	var dfs func(root *algorithm.TreeNode, d int)
+	father := make(map[int][]*algorithm.TreeNode)
 
+	depth := make(map[int]int)
+	// 在dfs中进行预处理
+	dfs = func(root *algorithm.TreeNode, d int) {
+		if root == nil {
+			return
+		}
+		if root.Left != nil {
+			// 如果没分配就分配
+			if _, ok := father[root.Left.Val]; !ok {
+				father[root.Left.Val] = make([]*algorithm.TreeNode, 20)
+			}
+			// 初始化
+			father[root.Left.Val][0] = root
+			for i := 0; i < 19; i++ {
+				if father[root.Left.Val][i] == nil {
+					father[root.Left.Val][i+1] = nil
+					continue
+				}
+				father[root.Left.Val][i+1] = father[father[root.Left.Val][i].Val][i]
+			}
+
+			depth[root.Left.Val] = d + 1
+			dfs(root.Left, d+1)
+		}
+		if root.Right != nil {
+			if _, ok := father[root.Right.Val]; !ok {
+				father[root.Right.Val] = make([]*algorithm.TreeNode, 20)
+			}
+			father[root.Right.Val][0] = root
+			for i := 0; i < 19; i++ {
+				if father[root.Right.Val][i] == nil {
+					father[root.Right.Val][i+1] = nil
+					continue
+				}
+				father[root.Right.Val][i+1] = father[father[root.Right.Val][i].Val][i]
+			}
+			depth[root.Right.Val] = d + 1
+			dfs(root.Right, d+1)
+		}
+	}
+	// father[i][j] 这个节点2^(j)次能跳到哪？
+
+	father[root.Val] = make([]*algorithm.TreeNode, 20)
+	for i := 0; i < 20; i++ {
+		father[root.Val][i] = nil
+	}
+
+	dfs(root, 0)
+	// 保证p的深度永远是小的
+	if depth[p.Val] > depth[q.Val] {
+		p, q = q, p
+	}
+	// 将q往上
+	for i := 19; i >= 0; i-- {
+		if father[q.Val][i] == nil {
+			continue
+		}
+		if depth[father[q.Val][i].Val] >= depth[p.Val] {
+			q = father[q.Val][i]
+		}
+		if p.Val == q.Val {
+			return p
+		}
+	}
+	// 现在深度一致了
+	for i := 19; i >= 0; i-- {
+		if father[p.Val][i] == nil && father[q.Val][i] == nil {
+			continue
+		}
+		// 如果前面计算的没错，这里是不会出现一个为nil，另一个不为nil的情况
+		if father[p.Val][i] != father[q.Val][i] {
+			p = father[p.Val][i]
+			q = father[q.Val][i]
+		}
+	}
+	return father[p.Val][0]
 }
 
 // leetcode237

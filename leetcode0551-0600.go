@@ -43,6 +43,62 @@ func FindTilt(root *algorithm.TreeNode) int {
 	return sum
 }
 
+// leetcode572
+func IsSubtree(root *algorithm.TreeNode, subRoot *algorithm.TreeNode) bool {
+	var isSame func(p, q *algorithm.TreeNode) bool
+	isSame = func(p, q *algorithm.TreeNode) bool {
+		if p == nil && q == nil {
+			return true
+		}
+		if p == nil || q == nil {
+			return false
+		}
+		l := isSame(p.Left, q.Left)
+		r := isSame(p.Right, q.Right)
+		return p.Val == q.Val && l && r
+	}
+	cur := root
+	stack := []*algorithm.TreeNode{}
+	for cur != nil || len(stack) != 0 {
+		if cur != nil {
+			stack = append(stack, cur)
+			cur = cur.Left
+		} else {
+			top := stack[len(stack)-1]
+			if isSame(top, subRoot) {
+				return true
+			}
+			stack = stack[:len(stack)-1]
+			cur = top.Right
+		}
+	}
+	return false
+}
+
+func IsSubtree2(root *algorithm.TreeNode, subRoot *algorithm.TreeNode) bool {
+	var isSame func(p, q *algorithm.TreeNode) bool
+	isSame = func(p, q *algorithm.TreeNode) bool {
+		if p == nil && q == nil {
+			return true
+		}
+		if p == nil || q == nil {
+			return false
+		}
+		l := isSame(p.Left, q.Left)
+		r := isSame(p.Right, q.Right)
+		return p.Val == q.Val && l && r
+	}
+	var dfs func(p *algorithm.TreeNode) bool
+	dfs = func(p *algorithm.TreeNode) bool {
+		if isSame(p, subRoot) {
+			return true
+		}
+		return dfs(p.Left) || dfs(p.Right)
+	}
+
+	return dfs(root)
+}
+
 // leetcode573
 func Fib(n int) int {
 	preOne, preTwo := 0, 1

@@ -474,3 +474,41 @@ func NumTrees(n int) int {
 	}
 	return ans
 }
+
+// leetcode98
+func IsValidBST(root *algorithm.TreeNode) bool {
+	var prev *algorithm.TreeNode
+	cur := root
+	stack := []*algorithm.TreeNode{}
+	for cur != nil || len(stack) != 0 {
+		if cur != nil {
+			stack = append(stack, cur)
+			cur = cur.Left
+		} else {
+			top := stack[len(stack)-1]
+			stack = stack[:len(stack)-1]
+			if prev != nil && cur.Val < prev.Val {
+				return false
+			}
+			prev = cur
+			cur = top.Right
+		}
+	}
+	return true
+}
+
+// leetcode100
+func IsSameTree(p *algorithm.TreeNode, q *algorithm.TreeNode) bool {
+	if p == nil && q != nil {
+		return false
+	}
+	if p != nil && q == nil {
+		return false
+	}
+	if p == nil && q == nil {
+		return true
+	}
+	l := IsSameTree(p.Left, q.Left)
+	r := IsSameTree(p.Right, q.Right)
+	return p.Val == q.Val && l && r
+}
