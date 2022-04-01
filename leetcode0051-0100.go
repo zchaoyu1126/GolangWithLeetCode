@@ -4,7 +4,50 @@ import (
 	"fmt"
 	"programs/internal/algorithmingo/algorithm"
 	"programs/kit/common"
+	"sort"
 )
+
+// leetcode51
+func SolveNQueens(n int) [][]string {
+	col := make([]int, n)
+	l2r := make([]int, 2*n)
+	r2l := make([]int, 2*n)
+
+	res := [][]string{}
+	cur := make([][]byte, n)
+	for i := range cur {
+		cur[i] = make([]byte, n)
+		for j := range cur[i] {
+			cur[i][j] = '.'
+		}
+	}
+
+	var backtrace func(ridx int)
+	backtrace = func(ridx int) {
+		if ridx == n {
+			ans := make([]string, n)
+			for i := range cur {
+				ans[i] = string(cur[i])
+			}
+			res = append(res, ans)
+			return
+		}
+
+		i := ridx
+		for j := 0; j < n; j++ {
+			if col[j] == 1 || r2l[i+j] == 1 || l2r[i-j+n] == 1 {
+				continue
+			}
+			col[j], r2l[i+j], l2r[i-j+n] = 1, 1, 1
+			cur[i][j] = 'Q'
+			backtrace(ridx + 1)
+			col[j], r2l[i+j], l2r[i-j+n] = 0, 0, 0
+			cur[i][j] = '.'
+		}
+	}
+	backtrace(0)
+	return res
+}
 
 // leetcode53
 // 最大子序和
@@ -340,6 +383,58 @@ func MinWindow2(s string, t string) string {
 	return s[start+1 : end+1]
 }
 
+// leetcode77
+func Combine(n int, k int) [][]int {
+	if k == 0 {
+		return [][]int{}
+	}
+	res := [][]int{}
+	cur := []int{}
+	var backtrace func(n int, k int)
+	backtrace = func(n int, k int) {
+		// 简单的进行减枝操作
+		if n < k {
+			return
+		} else if k == 0 {
+			tmp := make([]int, len(cur))
+			copy(tmp, cur)
+			res = append(res, tmp)
+		} else if n == 0 {
+			return
+		}
+		for i := n; i >= 1; i-- {
+			cur = append(cur, i)
+			backtrace(i-1, k-1)
+			cur = cur[:len(cur)-1]
+		}
+	}
+	backtrace(n, k)
+	return res
+}
+
+// leetcode78
+func Subsets(nums []int) [][]int {
+	var backtrace func(start int)
+	res := [][]int{}
+	cur := []int{}
+	backtrace = func(start int) {
+		if start == len(nums) {
+			return
+		}
+		for i := start; i < len(nums); i++ {
+			cur = append(cur, nums[i])
+			tmp := make([]int, len(cur))
+			copy(tmp, cur)
+			res = append(res, tmp)
+			backtrace(i + 1)
+			cur = cur[:len(cur)-1]
+		}
+	}
+	backtrace(0)
+	res = append(res, []int{})
+	return res
+}
+
 // leetcode88
 func Merge(nums1 []int, m int, nums2 []int, n int) {
 	i, j := m-1, n-1
@@ -365,6 +460,33 @@ func Merge(nums1 []int, m int, nums2 []int, n int) {
 		cur--
 	}
 	fmt.Println(nums1)
+}
+
+// leetcode90
+func SubsetsWithDup(nums []int) [][]int {
+	sort.Ints(nums)
+	var backtrace func(start int)
+	res := [][]int{}
+	cur := []int{}
+	backtrace = func(start int) {
+		if start == len(nums) {
+			return
+		}
+		for i := start; i < len(nums); i++ {
+			cur = append(cur, nums[i])
+			tmp := make([]int, len(cur))
+			copy(tmp, cur)
+			res = append(res, tmp)
+			backtrace(i + 1)
+			cur = cur[:len(cur)-1]
+			for i+1 < len(nums) && nums[i+1] == nums[i] {
+				i++
+			}
+		}
+	}
+	backtrace(0)
+	res = append(res, []int{})
+	return res
 }
 
 // leetcode92
@@ -400,6 +522,26 @@ func ReverseBetween(head *algorithm.ListNode, left int, right int) *algorithm.Li
 	guard.Next = has
 	remain.Next = last
 	return dummy.Next
+}
+
+// leetcode93
+func RestoreIpAddresses(s string) []string {
+	var backtrace func(start int)
+	res := []string{}
+	cur := []string{}
+	backtrace = func(start int) {
+		if start == len(s) {
+			fmt.Println(cur)
+		}
+		for i := start; i < len(s); i++ {
+			cur = append(cur, s[start:i+1])
+			backtrace(i + 1)
+			cur = cur[:len(cur)-1]
+		}
+	}
+
+	backtrace(0)
+	return res
 }
 
 // leetcode94

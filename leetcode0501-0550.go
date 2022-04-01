@@ -315,6 +315,23 @@ func GetMinimumDifference(root *algorithm.TreeNode) int {
 	return res
 }
 
+// leetcode538
+func ConvertBST(root *algorithm.TreeNode) *algorithm.TreeNode {
+	var traversal func(root *algorithm.TreeNode)
+	sum := 0
+	traversal = func(root *algorithm.TreeNode) {
+		if root == nil {
+			return
+		}
+		traversal(root.Right)
+		sum += root.Val
+		root.Val = sum
+		traversal(root.Left)
+	}
+	traversal(root)
+	return root
+}
+
 // leetcode539
 func FindMinDifference(timePoints []string) int {
 	data := []int{}

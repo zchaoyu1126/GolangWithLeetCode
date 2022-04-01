@@ -132,6 +132,36 @@ func FindMinStep(board string, hand string) int {
 	return 1
 }
 
+// leetcode491
+func FindSubsequences(nums []int) [][]int {
+	var backtrace func(start int)
+	res := [][]int{}
+	cur := []int{}
+
+	backtrace = func(start int) {
+		if len(cur) >= 2 {
+			tmp := make([]int, len(cur))
+			copy(tmp, cur)
+			res = append(res, tmp)
+		}
+		if start == len(nums) {
+			return
+		}
+		history := make([]int, 201)
+		for i := start; i < len(nums); i++ {
+			if len(cur) > 0 && nums[i] < cur[len(cur)-1] || history[nums[i]+100] == 1 {
+				continue
+			}
+			history[nums[i]+100] = 1
+			cur = append(cur, nums[i])
+			backtrace(i + 1)
+			cur = cur[:len(cur)-1]
+		}
+	}
+	backtrace(0)
+	return res
+}
+
 // leetcode492
 func ConstructRectangle(area int) []int {
 	num1 := 1

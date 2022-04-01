@@ -272,6 +272,41 @@ func FindWords(board [][]byte, words []string) []string {
 	return res
 }
 
+// leetcode216
+func CombinationSum3(k int, n int) [][]int {
+	res := [][]int{}
+	cur := []int{}
+	var backtrace func(start, target int)
+	backtrace = func(start, target int) {
+		if target == 0 {
+			tmp := make([]int, len(cur))
+			copy(tmp, cur)
+			res = append(res, tmp)
+		} else if target < 0 {
+			return
+		}
+		for i := start; i <= 9; i++ {
+			cur = append(cur, i)
+			backtrace(i+1, target-i)
+			cur = cur[:len(cur)-1]
+		}
+	}
+	return res
+}
+
+// leetcode217
+func ContainsDuplicate(nums []int) bool {
+	mp := make(map[int]bool)
+	for i := 0; i < len(nums); i++ {
+		if _, has := mp[nums[i]]; has {
+			return false
+		} else {
+			mp[nums[i]] = true
+		}
+	}
+	return true
+}
+
 // leetcode222
 func CountNodes(root *algorithm.TreeNode) int {
 	if root == nil {
@@ -291,19 +326,6 @@ func CountNodes(root *algorithm.TreeNode) int {
 		return (2 << leftNum) - 1
 	}
 	return CountNodes(root.Left) + CountNodes(root.Right) + 1
-}
-
-// leetcode217
-func ContainsDuplicate(nums []int) bool {
-	mp := make(map[int]bool)
-	for i := 0; i < len(nums); i++ {
-		if _, has := mp[nums[i]]; has {
-			return false
-		} else {
-			mp[nums[i]] = true
-		}
-	}
-	return true
 }
 
 // leetcode225
@@ -522,6 +544,48 @@ func CountDigitOne(n int) int {
 		res += 1
 	}
 	return res
+}
+
+// leetcode235
+func LowestCommonAncestor1(root, p, q *algorithm.TreeNode) *algorithm.TreeNode {
+	var postTraversal func(node, p, q *algorithm.TreeNode) *algorithm.TreeNode
+	postTraversal = func(node, p, q *algorithm.TreeNode) *algorithm.TreeNode {
+		if node == nil || node.Val == p.Val || node.Val == q.Val {
+			return node
+		}
+		l := postTraversal(node.Left, p, q)
+		r := postTraversal(node.Right, p, q)
+		if l == nil && r == nil {
+			return nil
+		}
+		if l != nil && r != nil {
+			return node
+		}
+		if l != nil {
+			return l
+		}
+
+		return r
+
+	}
+	return postTraversal(root, p, q)
+}
+
+func LowestCommonAncestor235(root, p, q *algorithm.TreeNode) *algorithm.TreeNode {
+	cur := root
+	for cur != nil {
+		if cur.Val > p.Val && cur.Val > q.Val {
+			cur = cur.Left
+		} else if cur.Val < p.Val && cur.Val < q.Val {
+			cur = cur.Right
+		} else {
+			// else的情况中，说明有p.Val==cur.Val 或者q.Val == cur.Val
+			// 或者 p.Val < cur.Val < q.Val
+			// 或者 q.Val < cur.Val < p.Val
+			return cur
+		}
+	}
+	return nil
 }
 
 // leetcode236

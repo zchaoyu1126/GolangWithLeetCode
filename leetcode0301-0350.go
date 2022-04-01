@@ -4,6 +4,7 @@ import (
 	"container/heap"
 	"fmt"
 	"programs/internal/algorithmingo/algorithm"
+	"sort"
 )
 
 // leetcode307
@@ -55,6 +56,52 @@ func IsPowerOfThree(n int) bool {
 		l *= 3
 	}
 	return n == l
+}
+
+// leetcode332
+func FindItinerary(tickets [][]string) []string {
+	cur := []string{"JFK"}
+
+	mp := make(map[string][]string)
+	used := make(map[string]map[string]int)
+
+	for i := 0; i < len(tickets); i++ {
+		from, to := tickets[i][0], tickets[i][1]
+		if _, ok := mp[from]; !ok {
+			mp[from] = []string{}
+			used[from] = make(map[string]int)
+		}
+		mp[from] = append(mp[from], to)
+		used[from][to]++
+	}
+	for key := range mp {
+		sort.Strings(mp[key])
+	}
+
+	var backtrace func(startPos string) bool
+	backtrace = func(startPos string) bool {
+		// 找到之后应该给上一级报告说找到了
+		if len(cur) == len(tickets)+1 {
+			return true
+		}
+
+		for _, to := range mp[startPos] {
+			if used[startPos][to] == 0 {
+				continue
+			}
+			cur = append(cur, to)
+			used[startPos][to]--
+			if backtrace(to) {
+				// 从to出发找到了 直接return,不能再cur = cur[:len(cur)-1]
+				return true
+			}
+			cur = cur[:len(cur)-1]
+			used[startPos][to]++
+		}
+		return false
+	}
+	backtrace("JFK")
+	return cur
 }
 
 // leetcode334

@@ -24,6 +24,27 @@ func ConstructMaximumBinaryTree(nums []int) *algorithm.TreeNode {
 	return node
 }
 
+// leetcode669
+func TrimBST(root *algorithm.TreeNode, low int, high int) *algorithm.TreeNode {
+	for root != nil {
+		if root.Val <= high && root.Val >= low {
+			break
+		} else if root.Val > high {
+			root = root.Left
+		} else if root.Val < low {
+			root = root.Right
+		}
+	}
+	if root == nil {
+		return nil
+	}
+
+	root.Left = TrimBST(root.Left, low, high)
+	root.Right = TrimBST(root.Right, low, high)
+
+	return root
+}
+
 // leetcode686
 func RepeatedStringMatch(a string, b string) int {
 	lenB := len(b)

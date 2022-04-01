@@ -375,3 +375,243 @@ func Gcd(a, b int) int {
 	}
 	return b
 }
+
+func IsPalindrome2(head *algorithm.ListNode) bool {
+	nums := []int{}
+	cur := head
+	for cur != nil {
+		nums = append(nums, cur.Val)
+		cur = cur.Next
+	}
+	isParlindrome := func(arr []int) bool {
+		for i, j := 0, len(arr)-1; i <= j; i, j = i+1, j-1 {
+			if arr[i] != arr[j] {
+				return false
+			}
+		}
+		return true
+	}
+	for i, j := 0, len(nums)-1; i <= j; i, j = i+1, j-1 {
+		if nums[i] != nums[j] {
+			// 把i删除
+			newNum1 := append(nums[:i], nums[i+1:]...)
+			// 把j删除
+			newNum2 := append(nums[:j], nums[j+1:]...)
+			return isParlindrome(newNum1) || isParlindrome(newNum2)
+		}
+	}
+	return true
+}
+
+func isPalindrome(head *ListNode) bool {
+	nums := []int{}
+	cur := head
+	for cur != nil {
+		nums = append(nums, cur.Val)
+		cur = cur.Next
+	}
+	isParlindrome := func(arr []int) bool {
+		for i, j := 0, len(arr)-1; i <= j; i, j = i+1, j-1 {
+			if arr[i] != arr[j] {
+				return false
+			}
+		}
+		return true
+	}
+	for i, j := 0, len(nums)-1; i <= j; i, j = i+1, j-1 {
+		if nums[i] != nums[j] {
+			// 把i删除
+			tmp := make([]int, len(nums))
+			copy(tmp, nums)
+			newNum1 := append(tmp[:i], tmp[i+1:]...)
+			// 把j删除
+			copy(tmp, nums)
+			newNum2 := append(tmp[:j], tmp[j+1:]...)
+			return isParlindrome(newNum1) || isParlindrome(newNum2)
+		}
+	}
+	return true
+}
+
+// 需要记录用户参加过哪些活动，参加了多少次
+// 需要计算，参加哪个活动，优惠力度最大
+type DiscountSystem struct {
+	Acts    map[int]DiscoutActivity
+	Records map[int]ConsumerRecords
+}
+
+type DiscoutActivity struct {
+	priceLimit  int
+	discount    int
+	number      int
+	userLimit   int
+	hasFinished bool
+}
+
+type ConsumerRecords struct {
+	cnt map[int]int
+}
+
+func NewDiscountSystem() DiscountSystem {
+	return DiscountSystem{}
+}
+
+func (ds *DiscountSystem) AddActivity(actId int, priceLimit int, discount int, number int, userLimit int) {
+	ds.Acts[actId] = DiscoutActivity{priceLimit, discount, number, userLimit, false}
+}
+
+func (ds *DiscountSystem) RemoveActivity(actId int) {
+	act := ds.Acts[actId]
+	act.hasFinished = true
+}
+
+func (ds *DiscountSystem) Consume(userId int, cost int) int {
+	record := ds.Records[userId]
+	curId, curCost := -1, -1
+	for id, act := range ds.Acts {
+		if !act.hasFinished && cost > act.priceLimit && act.userLimit > 0 && record.cnt[id] < act.userLimit {
+			// 活动未结束 满足消费下限 活动人数未满 消费次数未满
+			if act.discount > curCost {
+				curId = id
+			} else if act.discount == curCost {
+				if curId > id {
+					curId = id
+				}
+			}
+		}
+	}
+	act := ds.Acts[curId]
+	act.userLimit--
+	record.cnt[curId]++
+	return curCost
+}
+
+// 输入：
+// ["DiscountSystem","addActivity","addActivity","consume","removeActivity","consume","consume","consume","consume"]
+// [[],[1,10,6,3,2],[2,15,8,8,2],[101,13],[2],[101,17],[101,11],[102,16],[102,21]]
+// 输出：
+// [null,null,null,7,null,17,11,10,21]
+// 预期：
+// [null,null,null,7,null,11,11,10,21]
+
+// 输入：
+// ["DiscountSystem","addActivity","consume","consume","consume","addActivity","addActivity","consume","addActivity","consume"]
+// [[],[3,55,20,4,4],[6,98],[2,37],[6,55],[8,45,12,5,4],[1,55,16,4,4],[6,100],[0,40,13,7,2],[10,43]]
+// 输出：
+// [null,null,78,37,55,null,null,80,null,30]
+// 预期：
+// [null,null,78,37,35,null,null,80,null,30]
+
+func MaxInvestment(product []int, limit int) int {
+	sort.Ints(product)
+	for i, j := 0, len(product)-1; i < j; i, j = i+1, j-1 {
+		product[i], product[j] = product[j], product[i]
+	}
+	curN, sum := 1, 0
+	var m int = 1e9 + 7
+	for i := 0; i < len(product)-1; i++ {
+		cnt := product[i] - product[i+1]
+		if cnt*curN <= limit {
+			sum = (sum%m + (product[i]+product[i+1])*cnt/2*curN%m) % m
+			limit -= cnt
+			curN++
+		} else {
+			//如果cnt*curN > limit，那么说明到头了要
+			// limit/curN 均摊到每个curN
+			tmp := int(limit / curN)
+			sum = (sum + (product[i]+product[i]-tmp+1)*tmp/2*curN) % m
+			remain := limit - tmp
+			sum = (sum + (product[i]-tmp)*remain) % m
+		}
+	}
+	return sum
+}
+
+// [2,1,5,8,7]
+// 10
+// 输出：
+// 55
+// 预期：
+// 57
+// 标准输出：
+// 10
+// 8
+// 9
+// 32
+// 5
+// 47 1
+// 55
+// 0
+
+func FindDifference(nums1 []int, nums2 []int) [][]int {
+	mp1 := make(map[int]bool)
+	mp2 := make(map[int]bool)
+	for i := 0; i < len(nums1); i++ {
+		mp1[nums1[i]] = true
+	}
+	for i := 0; i < len(nums2); i++ {
+		mp2[nums2[i]] = true
+	}
+	ans1 := []int{}
+	ans2 := []int{}
+	for i := 0; i < len(nums1); i++ {
+		if _, has := mp2[nums1[i]]; !has {
+			ans1 = append(ans1, nums1[i])
+			mp2[nums1[i]] = true
+		}
+	}
+	for i := 0; i < len(nums2); i++ {
+		if _, has := mp1[nums2[i]]; !has {
+			ans2 = append(ans2, nums2[i])
+			mp1[nums2[i]] = true
+		}
+	}
+	return [][]int{ans1, ans2}
+}
+
+func MinDeletion(nums []int) int {
+	// 4
+	// 0 1 2 3
+	// nums[i] != nums[i+1]
+	return 2
+}
+
+func KthPalindrome(queries []int, intLength int) []int64 {
+	var ans []int64 = []int64{}
+	var build func(n, length int) int64
+
+	powerForTen := func(cnt int) int {
+		res := 1
+		for i := 1; i <= cnt; i++ {
+			res *= 10
+		}
+		return res
+	}
+
+	build = func(n, length int) int64 {
+		cnt := int((length+1)/2) - 1
+		if n > 9*powerForTen(cnt) {
+			return -1
+		}
+
+		base := powerForTen(cnt) + n - 1
+		copyBase := base
+		firstFlag := true
+		for copyBase != 0 {
+			remain := copyBase % 10
+			copyBase /= 10
+			if firstFlag && length%2 != 0 {
+				firstFlag = false
+				continue
+			} else {
+				base = base*10 + remain
+			}
+		}
+		return int64(base)
+	}
+
+	for i := 0; i < len(queries); i++ {
+		ans = append(ans, build(queries[i], intLength))
+	}
+	return ans
+}

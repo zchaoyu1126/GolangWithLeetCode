@@ -128,6 +128,37 @@ func ThreeSum(nums []int) [][]int {
 	return res
 }
 
+// leetcode17
+func LetterCombinations(digits string) []string {
+	mp := make(map[byte][]byte)
+	mp['2'] = []byte{'a', 'b', 'c'}
+	mp['3'] = []byte{'d', 'e', 'f'}
+	mp['4'] = []byte{'g', 'h', 'i'}
+	mp['5'] = []byte{'j', 'k', 'l'}
+	mp['6'] = []byte{'m', 'n', 'o'}
+	mp['7'] = []byte{'p', 'q', 'r', 's'}
+	mp['8'] = []byte{'t', 'u', 'v'}
+	mp['9'] = []byte{'w', 'x', 'y', 'z'}
+	res := []string{}
+	cur := []byte{}
+	var backtrace func(digits string)
+	backtrace = func(digits string) {
+		if len(digits) <= 0 {
+			res = append(res, string(cur))
+			return
+		}
+		for i := 0; i < len(digits); i++ {
+			for _, ch := range mp[digits[i]] {
+				cur = append(cur, ch)
+				backtrace(digits[1:])
+				cur = cur[:len(cur)-1]
+			}
+		}
+	}
+	backtrace(digits)
+	return res
+}
+
 // leetcode18
 func FourSum(nums []int, target int) [][]int {
 	res := [][]int{}
@@ -621,6 +652,45 @@ func IsValidSudoku(board [][]byte) bool {
 	return true
 }
 
+// leetcode37
+func SolveSudoku(board [][]byte) {
+	m, n := 9, 9
+	position := []int{}
+	row, col := [9][9]int{}, [9][9]int{}
+	block := [3][3][9]int{}
+
+	for i := 0; i < m; i++ {
+		for j := 0; j < n; j++ {
+			if board[i][j] == '.' {
+				position = append(position, i*9+j)
+			} else {
+				digit := int(board[i][j] - '0')
+				row[i][digit] = 1
+				col[j][digit] = 1
+				block[i/3][j/3][digit] = 1
+			}
+		}
+	}
+
+	var dfs func(n int)
+	dfs = func(n int) {
+		if n == len(position) {
+			return
+		}
+		x, y := position[n]/9, position[n]%9
+		for i := 1; i <= 9; i++ {
+			if row[x][i] == 0 && col[y][i] == 0 && block[x/3][y/3][i] == 0 {
+				board[x][y] = byte('0' + i)
+				row[x][i], col[y][i], block[x/3][y/3][i] = 1, 1, 1
+				dfs(n + 1)
+				board[x][y] = '.'
+				row[x][i], col[y][i], block[x/3][y/3][i] = 0, 0, 0
+			}
+		}
+	}
+	dfs(0)
+}
+
 // leetcode38
 func CountAndSay(n int) string {
 	if n == 1 {
@@ -647,6 +717,64 @@ func CountAndSay(n int) string {
 		cur = ""
 	}
 	return cur
+}
+
+// leetcode39
+func CombinationSum(candidates []int, target int) [][]int {
+
+	sort.Ints(candidates)
+	minN := candidates[0]
+
+	cur := []int{}
+	res := [][]int{}
+	var backtrace func(start, target int)
+	backtrace = func(start, target int) {
+		if target == 0 {
+			tmp := make([]int, len(cur))
+			copy(tmp, cur)
+			res = append(res, tmp)
+		} else if target < minN {
+			return
+		}
+		for i := start; i < len(candidates); i++ {
+			cur = append(cur, candidates[i])
+			backtrace(i, target-candidates[i])
+			cur = cur[:len(cur)-1]
+		}
+	}
+	backtrace(0, target)
+	return res
+}
+
+// leetcode40
+func CombinationSum2(candidates []int, target int) [][]int {
+	sort.Ints(candidates)
+	minN := candidates[0]
+
+	cur := []int{}
+	res := [][]int{}
+	var backtrace func(start, target int)
+	prev := minN - 1
+	backtrace = func(start, target int) {
+		if target == 0 {
+			tmp := make([]int, len(cur))
+			copy(tmp, cur)
+			res = append(res, tmp)
+		} else if target < minN {
+			return
+		}
+		i := start
+		for i < len(candidates) && candidates[i] == prev {
+			i++
+		}
+		for ; i < len(candidates); i++ {
+			cur = append(cur, candidates[i])
+			backtrace(i+1, target-candidates[i])
+			cur = cur[:len(cur)-1]
+		}
+	}
+	backtrace(0, target)
+	return res
 }
 
 // leetcode42
@@ -704,6 +832,64 @@ func Jump(nums []int) int {
 		}
 	}
 	return step
+}
+
+// leetcode46
+func Permute(nums []int) [][]int {
+	res := [][]int{}
+	cur := []int{}
+	used := make([]int, len(nums))
+	var backtrace func()
+	backtrace = func() {
+		if len(cur) == len(nums) {
+			tmp := make([]int, len(cur))
+			copy(tmp, cur)
+			res = append(res, tmp)
+		}
+
+		for i := 0; i < len(nums); i++ {
+			if used[i] == 1 {
+				continue
+			}
+			used[i] = 1
+			cur = append(cur, nums[i])
+			backtrace()
+			used[i] = 0
+			cur = cur[:len(cur)-1]
+		}
+	}
+	backtrace()
+	return res
+}
+
+// leetcode47
+func PermuteUnique(nums []int) [][]int {
+	res := [][]int{}
+	cur := []int{}
+	used := make([]int, len(nums))
+
+	var backtrace func()
+	backtrace = func() {
+		if len(cur) == len(nums) {
+			tmp := make([]int, len(cur))
+			copy(tmp, cur)
+			res = append(res, tmp)
+		}
+		history := make([]int, 21)
+		for i := 0; i < len(nums); i++ {
+			if used[i] == 1 || history[nums[i]] == 1 {
+				continue
+			}
+			used[i] = 1
+			history[nums[i]] = 1
+			cur = append(cur, nums[i])
+			backtrace()
+			used[i] = 0
+			cur = cur[:len(cur)-1]
+		}
+	}
+	backtrace()
+	return res
 }
 
 // leetcode50

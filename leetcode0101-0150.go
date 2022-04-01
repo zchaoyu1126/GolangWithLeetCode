@@ -134,6 +134,18 @@ func LevelOrderBottom(root *algorithm.TreeNode) [][]int {
 	return res
 }
 
+// leetcode108
+func SortedArrayToBST(nums []int) *algorithm.TreeNode {
+	if len(nums) == 0 {
+		return nil
+	}
+	mid := len(nums) / 2
+	root := &algorithm.TreeNode{Val: nums[mid]}
+	root.Left = SortedArrayToBST(nums[:mid])
+	root.Right = SortedArrayToBST(nums[mid+1:])
+	return root
+}
+
 // leetcode110
 func GetHeight(root *algorithm.TreeNode) int {
 	if root == nil {
@@ -367,6 +379,38 @@ func MinimumTotal(triangle [][]int) int {
 			res = prev[i]
 		}
 	}
+	return res
+}
+
+// leetcode131
+func Partition(s string) [][]string {
+	var backtrace func(start int, s string)
+	isPalindrome := func(str string) bool {
+		for i, j := 0, len(str)-1; i < j; i, j = i+1, j-1 {
+			if str[i] != str[j] {
+				return false
+			}
+		}
+		return true
+	}
+	res := [][]string{}
+	cur := []string{}
+	backtrace = func(start int, s string) {
+		if s == "" {
+			tmp := make([]string, len(cur))
+			copy(tmp, cur)
+			res = append(res, tmp)
+		}
+		for i := start; i < len(s); i++ {
+			if !isPalindrome(s[start : i+1]) {
+				continue
+			}
+			cur = append(cur, s[start:i+1])
+			backtrace(i+1, s[i+1:])
+            cur = cur[:len(cur)-1]
+		}
+	}
+	backtrace(0, s)
 	return res
 }
 

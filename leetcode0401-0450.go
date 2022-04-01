@@ -221,3 +221,29 @@ func NumberOfBoomerangs(points [][]int) int {
 	}
 	return ans
 }
+
+// leetcode450
+func DeleteNode450(root *algorithm.TreeNode, key int) *algorithm.TreeNode {
+	if root == nil {
+		return root
+	}
+	if key > root.Val {
+		root.Right = DeleteNode450(root.Right, key)
+	} else if key < root.Val {
+		root.Left = DeleteNode450(root.Left, key)
+	} else {
+		if root.Left == nil {
+			return root.Right
+		} else if root.Right == nil {
+			return root.Left
+		} else {
+			cur := root.Right
+			for cur.Left != nil {
+				cur = cur.Left
+			}
+			cur.Left = root.Left
+		}
+		root = root.Right
+	}
+	return root
+}

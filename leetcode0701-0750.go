@@ -24,6 +24,30 @@ func SearchBST(root *algorithm.TreeNode, val int) *algorithm.TreeNode {
 	return root
 }
 
+// leetcode701
+func InsertIntoBST(root *algorithm.TreeNode, val int) *algorithm.TreeNode {
+	if root == nil {
+		return &algorithm.TreeNode{Val: val}
+	}
+	cur := root
+	prev := cur
+	for cur != nil {
+		if cur.Val < val {
+			prev = cur
+			cur = cur.Right
+		} else if cur.Val > val {
+			prev = cur
+			cur = cur.Left
+		}
+	}
+	if prev.Val < val {
+		prev.Right = &algorithm.TreeNode{Val: val}
+	} else if prev.Val > val {
+		prev.Left = &algorithm.TreeNode{Val: val}
+	}
+	return root
+}
+
 // leetcode704
 func Search(nums []int, target int) int {
 	l, r := 0, len(nums)-1
