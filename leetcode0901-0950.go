@@ -1,5 +1,7 @@
 package leetcode
 
+import "programs/kit/common"
+
 // leetcode904
 func TotalFruit1(fruits []int) int {
 	mp, res := make(map[int]int), 0
@@ -59,4 +61,19 @@ func TotalFruit2(fruits []int) int {
 		}
 	}
 	return res
+}
+
+// leetcode908
+func SmallestRangeI(nums []int, k int) int {
+	var minV int = 1e5
+	var maxV int = 0
+	for i := 0; i < len(nums); i++ {
+		if nums[i] > maxV {
+			maxV = nums[i]
+		}
+		if nums[i] < minV {
+			minV = nums[i]
+		}
+	}
+	return common.LargerNumber(0, maxV-minV-2*k)
 }

@@ -176,6 +176,31 @@ func preOrder(root *algorithm.TreeNode, val, pre, k int, isTargetSon bool) {
 // 	}
 // }
 
+// leetcode879
+func ProfitableSchemes(n int, minProfit int, group []int, profit []int) int {
+	// 首先使用minProfit对profit进行过滤
+	// 如果小于minProfit就直接continue
+	// 然后就是0 1 背包的问题，n是体积？
+	// 这个问题是要求组合数
+	// dp[i][j]代表i种工作，j位工人的方案数
+	// dp[i][j] += dp[i-1][j-group[i]]
+	m := len(group)
+	dp := make([][]int, m+1)
+	for i := range dp {
+		dp[i] = make([]int, n+1)
+	}
+	dp[0][0] = 1
+	for i := 1; i <= m; i++ {
+		if profit[i-1] >= minProfit {
+			// 对group进行一个过滤
+			for j := group[i-1]; j <= n; j++ {
+				dp[i][j] += dp[i-1][j-group[i]]
+			}
+		}
+	}
+	return dp[m][n]
+}
+
 // leetcode881
 func NumRescueBoats(people []int, limit int) int {
 	sort.Ints(people)

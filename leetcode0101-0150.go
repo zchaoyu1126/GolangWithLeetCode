@@ -1,6 +1,7 @@
 package leetcode
 
 import (
+	"container/list"
 	"programs/internal/algorithmingo/algorithm"
 	"programs/kit/common"
 	"strconv"
@@ -382,6 +383,87 @@ func MinimumTotal(triangle [][]int) int {
 	return res
 }
 
+// leetcode121
+func MaxProfit1BF(prices []int) int {
+	res := 0
+	for i := 0; i < len(prices); i++ {
+		for j := i + 1; j < len(prices); j++ {
+			res = common.LargerNumber(prices[j]-prices[i], res)
+		}
+	}
+	return res
+}
+
+func MaxProfit1DP(prices []int) int {
+	n := len(prices)
+	dp := make([][2]int, n)
+	dp[0][0] = -prices[0]
+	dp[0][1] = 0
+	for i := 1; i < n; i++ {
+		dp[i][0] = common.LargerNumber(dp[i-1][0], -prices[i])
+		dp[i][1] = common.LargerNumber(dp[i-1][1], dp[i-1][0]+prices[i])
+	}
+	return dp[n-1][1]
+}
+
+// leetcode122
+func MaxProfit2(prices []int) int {
+	prices = append(prices, 0)
+	curMinPrice := prices[0]
+	res := 0
+	for i := 1; i <= len(prices); i++ {
+		if prices[i] >= prices[i-1] {
+			// 单调递增的过程
+			continue
+		} else {
+			res += prices[i-1] - curMinPrice
+			curMinPrice = prices[i]
+		}
+	}
+	return res
+}
+
+// leetcode123
+func MaxProfit3(prices []int) int {
+	// dp[i][j][0] 第j次交易 买入
+	// dp[i][j][1] 第j次交易 卖出
+	// 买卖股票的最佳时机Ⅲ的泛化版
+	// 1.定义 dp[i][0/1][k]表示第i天(非)持有股票并且交易次数为k的利润最大值
+	// 2.递推公式
+	// 	2.1第i天没有持有股票
+	// 		2.1.1第i-1天没有持股 dp[i][0][k] = dp[i-1][0][k]
+	// 		2.1.2第i-1天持股    dp[i][0][k] = dp[i-1][1][k] + prices[i]
+	// 	2.2第i天持有股票
+	// 		2.2.1第i-1天持股    dp[i][1][k] = dp[i-1][1][k]
+	// 		2.2.2第i-1天没有持股 dp[i][1][k] = dp[i-1][0][k-1] - prices[i]
+	// 			 进行了一次新的交易买入股票 因此第k次交易的状态需要由k-1次交易的状态得到
+	// 3.初始化
+	// 	dp[0][0][1...k] = 0             //第1天没有买入股票利润值为0
+	// 	dp[0][1][1...k] = -prices[0]    //第1天进行k次交易买入股票利润值为-prices[0]
+	// 4.遍历顺序
+	// 	外层循环遍历天数 从前往后遍历
+	// 	内层循环穷举交易次数状态
+	n := len(prices)
+	dp := make([][][2]int, n)
+	for i := range dp {
+		dp[i] = make([][2]int, 3)
+	}
+	// j=1时，代表第一次交易
+	dp[0][1][0] = 0          // 未持有股票
+	dp[0][1][1] = -prices[0] // 持有股票
+	dp[0][2][0] = 0
+	dp[0][2][1] = -prices[0]
+	for i := 1; i < n; i++ {
+		for j := 1; j <= 2; j++ {
+			// 第i天未持股票，之前一直没有或者今天把之前的卖了
+			dp[i][j][0] = common.LargerNumber(dp[i-1][j][0], dp[i-1][j][1]+prices[i])
+			// 第i天持有股票，之前一直有股票，或者是取消之前的买入操作，在股价更低的地方买入
+			dp[i][j][1] = common.LargerNumber(dp[i-1][j][1], dp[i-1][j-1][0]-prices[i])
+		}
+	}
+	return dp[n-1][2][0]
+}
+
 // leetcode131
 func Partition(s string) [][]string {
 	var backtrace func(start int, s string)
@@ -407,7 +489,7 @@ func Partition(s string) [][]string {
 			}
 			cur = append(cur, s[start:i+1])
 			backtrace(i+1, s[i+1:])
-            cur = cur[:len(cur)-1]
+			cur = cur[:len(cur)-1]
 		}
 	}
 	backtrace(0, s)
@@ -484,6 +566,27 @@ func CopyRandomList(head *Node) *Node {
 	return newHead
 }
 
+// leetcode139
+func WordBreak(s string, wordDict []string) bool {
+	dp := make([]bool, len(s)+1)
+	dp[0] = true
+	for i := 1; i <= len(s); i++ {
+		for j := 0; j < len(wordDict); j++ {
+			if len(wordDict[j]) < i {
+				// word的长度小于i 直接continue
+				continue
+			} else {
+				// 是否相等？前面是否能被表示？
+				length := len(wordDict[j])
+				if dp[i-length] && s[i-length:i] == wordDict[j] {
+					dp[i] = true
+				}
+			}
+		}
+	}
+	return dp[len(s)]
+}
+
 // leetcode142
 func DetectCycle(head *algorithm.ListNode) *algorithm.ListNode {
 	if head == nil || head.Next == nil {
@@ -539,6 +642,55 @@ func PostorderTraversal(root *algorithm.TreeNode) []int {
 	}
 	traversal(root)
 	return res
+}
+
+// leetcode146
+
+type LRUCache struct {
+	l          *list.List
+	curSize    int
+	capability int
+	mp         map[int]*list.Element
+}
+
+type Info struct {
+	key int
+	val int
+}
+
+func NewLRUCache(capacity int) LRUCache {
+	return LRUCache{list.New(), 0, capacity, make(map[int]*list.Element)}
+}
+
+func (cache *LRUCache) Get(key int) int {
+	if node, has := cache.mp[key]; !has {
+		return -1
+	} else {
+		cache.l.MoveToFront(node)
+		return node.Value.(Info).val
+	}
+}
+
+func (cache *LRUCache) Put(key int, value int) {
+	var node *list.Element
+	if _, has := cache.mp[key]; !has {
+		// 如果不存在
+		node = cache.l.PushFront(Info{key, value})
+		cache.mp[key] = node
+		if cache.curSize < cache.capability {
+			cache.curSize++
+		} else {
+			tail := cache.l.Back()
+			delete(cache.mp, tail.Value.(Info).key)
+			cache.l.Remove(tail)
+		}
+	} else {
+		// 如果已存在
+		// 那么就不用考虑大小的问题了
+		node = cache.mp[key]
+		node.Value = Info{key, value}
+		cache.l.MoveToFront(node)
+	}
 }
 
 // leetcode150

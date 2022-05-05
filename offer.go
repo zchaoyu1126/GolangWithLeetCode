@@ -211,3 +211,23 @@ func MinCostClimbingStairs2(cost []int) int {
 	}
 	return dp[len(cost)]
 }
+
+func DeleteText(article string, index int) string {
+	if article[index] == ' ' {
+		return article
+	}
+	bytes := []byte(article)
+	l, r := index, index
+	for l >= 0 && article[l] != ' ' {
+		l--
+	}
+	for r < len(bytes) && article[r] != ' ' {
+		r++
+	}
+	ans := string(bytes[:l]) + string(bytes[r:])
+	return ans
+}
+
+func NumFlowers(roads [][]int) int {
+	return 2
+}

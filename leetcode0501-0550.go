@@ -104,6 +104,23 @@ func CheckPerfectNumber(num int) bool {
 	return sum == num
 }
 
+// leetcode509
+func Fib509(n int) int {
+	if n == 0 {
+		return 0
+	}
+	if n == 1 {
+		return 1
+	}
+	prev1, prev2 := 0, 1
+	ans := 0
+	for i := 2; i <= n; i++ {
+		ans = prev1 + prev2
+		prev1, prev2 = prev2, ans
+	}
+	return ans
+}
+
 // leetcode513
 func FindBottomLeftValue(root *algorithm.TreeNode) int {
 	res, curDepth := 0, -1
@@ -205,6 +222,18 @@ func reverseString(s string) string {
 		bytes[from], bytes[to] = bytes[to], bytes[from]
 	}
 	return string(bytes)
+}
+
+// leetcode518
+func Change(amount int, coins []int) int {
+	dp := make([]int, amount+1)
+	dp[0] = 1
+	for i := 0; i < len(coins); i++ {
+		for j := coins[i]; j <= amount; j++ {
+			dp[j] += dp[j-coins[i]]
+		}
+	}
+	return dp[amount]
 }
 
 // leetcode519

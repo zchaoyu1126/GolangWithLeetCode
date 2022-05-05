@@ -179,6 +179,90 @@ func GetMoneyAmount(n int) int {
 	return dp[1][n]
 }
 
+// leetcode376
+func WiggleMaxLength(nums []int) int {
+	dp := make([]int, len(nums))
+	dp[0] = 1
+	if len(nums) > 1 {
+		if dp[0] == dp[1] {
+			dp[1] = 1
+		} else {
+			dp[1] = 2
+		}
+	}
+	// 设dp为 以nums[i]为结尾时，摆动序列的长度
+	for i := 2; i < len(nums); i++ {
+		if nums[i] > nums[i-1] && nums[i-1] > nums[i-2] {
+			dp[i] = dp[i-2]
+		} else if nums[i] > nums[i-1] && nums[i-1] < nums[i-2] {
+			dp[i] = dp[i-1] + 1
+		} else if nums[i] < nums[i-1] && nums[i-1] < nums[i-2] {
+			dp[i] = dp[i-2]
+		} else if nums[i] < nums[i-1] && nums[i-1] > nums[i-2] {
+			dp[i] = dp[i-1] + 1
+		}
+	}
+	return dp[len(nums)-1]
+}
+
+// leetcode377
+func CombinationSum4_1(nums []int, target int) int {
+	// backtrace TLE
+	ans, cur := 0, 0
+	var backtrace func()
+	backtrace = func() {
+		if cur == target {
+			ans++
+			return
+		} else if cur > target {
+			return
+		}
+		for i := 0; i < len(nums); i++ {
+			cur += nums[i]
+			backtrace()
+			cur -= nums[i]
+		}
+	}
+	backtrace()
+	return ans
+}
+
+func CombinationSum4_2(nums []int, target int) int {
+	mp := make(map[int]int)
+	var dfs func(int) int
+	dfs = func(target int) int {
+		if target == 0 {
+			return 1
+		} else if target < 0 {
+			return 0
+		}
+		if val, has := mp[target]; has {
+			return val
+		}
+		ans := 0
+		for i := 0; i < len(nums); i++ {
+			ans += dfs(target - nums[i])
+		}
+		mp[target] = ans
+		return ans
+	}
+	return dfs(target)
+}
+
+func CombinationSum4_3(nums []int, target int) int {
+	dp := make([]int, target+1)
+	dp[0] = 1
+	for i := 1; i <= target; i++ {
+		for j := 0; j < len(nums); j++ {
+			if i < nums[j] {
+				continue
+			}
+			dp[i] += dp[i-nums[j]]
+		}
+	}
+	return dp[target]
+}
+
 // leetcode382
 // type Solution382 []int
 

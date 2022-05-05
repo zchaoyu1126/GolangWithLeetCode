@@ -169,6 +169,21 @@ func HIndex2(citations []int) int {
 	return h
 }
 
+// leetcode279
+func NumSquares(n int) int {
+	dp := make([]int, n+1)
+	for i := 1; i*i <= n; i++ {
+		for j := i * i; j <= n; j++ {
+			if dp[j] == 0 {
+				dp[j] = dp[j-i*i] + 1
+			} else {
+				dp[j] = common.SmallerNumber(dp[j], dp[j-i*i]+1)
+			}
+		}
+	}
+	return dp[n]
+}
+
 // leetcode283
 func MoveZeroes(nums []int) {
 	slow, fast := 0, 0
@@ -336,3 +351,131 @@ func LengthOfLIS2(nums []int) int {
 	}
 	return len(ceil)
 }
+
+// leetcode300
+func LengthOfLIS300(nums []int) int {
+	// 最长递增子序列
+	binarySearch := func(nums []int, target int) int {
+		l, r := 0, len(nums)-1
+		for l <= r {
+			m := (l + r) / 2
+			if nums[m] <= target {
+				l = m + 1
+			} else {
+				r = m - 1
+			}
+		}
+		return r
+	}
+	stack := []int{}
+	for i := 0; i < len(nums); i++ {
+		if len(stack) == 0 {
+			stack = append(stack, nums[i])
+		} else {
+			top := stack[len(stack)-1]
+			if nums[i] > top {
+				// 严格递增
+				stack = append(stack, nums[i])
+			} else {
+				// 找最后一个小于等于nums[i]
+				// 小于等于nums[i]的右边界
+				pos := binarySearch(stack, nums[i])
+				stack[pos] = nums[i]
+			}
+		}
+	}
+	return len(stack)
+}
+
+// leetcode300
+func LengthOfLIS300II(nums []int) int {
+	n := len(nums)
+	dp := make([]int, n)
+	// dp[i] 表示到i位置最长上升子序列的长度
+	for i := 0; i < n; i++ {
+		// 状态转移方程
+		for j := i - 1; j >= 0; j-- {
+			// 找比i小的
+			if nums[j] < nums[i] {
+				dp[i] = common.LargerNumber(dp[i], dp[j]+1)
+			}
+		}
+	}
+	return dp[n-1]
+}
+
+func LengthOfLISIII(nums []int) int {
+	var maxN int = 3000
+	n := len(nums)
+
+	// a是原来的数组，b是用于离散化
+	a := make([]int, n+1)
+	b := make([]int, n+1)
+	copy(a[1:], nums)
+	copy(b[1:], nums)
+	// c是树状数组
+	c := make([]int, maxN)
+
+	// 离散化操作，先排序
+	sort.Ints(b[1:])
+	// slow 永远代表下一个要存储的地方
+	slow := 2
+	for fast := 2; fast <= n; fast++ {
+		if b[fast] != b[slow-1] {
+			b[slow] = b[fast]
+			slow++
+		}
+	}
+	// slow同时也是去重之后数组元素的长度
+	b = b[:slow]
+	cnt := slow
+	lsh := func(b []int, target int) int {
+		l, r := 0, len(b)-1
+		for l <= r {
+			m := (l + r) / 2
+			if b[m] == target {
+				return m
+			} else if b[m] < target {
+				l = m + 1
+			} else {
+				r = m - 1
+			}
+		}
+		// 必定能找到，所以return -1无用
+		return -1
+	}
+
+	lowbit := func(x int) int {
+		return x & -x
+	}
+
+	modify := func(x, t int) {
+		for x <= cnt {
+			c[x] = common.LargerNumber(c[x], t)
+			x += lowbit(x)
+		}
+	}
+
+	query := func(x int) int {
+		res := 0
+		for x > 0 {
+			res = common.LargerNumber(res, c[x])
+			x -= lowbit(x)
+		}
+		return res
+	}
+
+	res := 0
+	for i := 1; i <= n; i++ {
+		// a[i]经过了离散化，得到的是一个下标
+		a[i] = lsh(b[1:], a[i]) + 1
+		val := query(a[i]-1) + 1
+		res = common.LargerNumber(res, val)
+		// 更新下标i处的最大值
+		modify(a[i], val)
+	}
+
+	return res
+}
+
+

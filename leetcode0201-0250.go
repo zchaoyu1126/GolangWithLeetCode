@@ -4,6 +4,7 @@ import (
 	"container/heap"
 	"fmt"
 	"programs/internal/algorithmingo/algorithm"
+	"programs/kit/common"
 )
 
 // leetcode203
@@ -270,6 +271,17 @@ func FindWords(board [][]byte, words []string) []string {
 		}
 	}
 	return res
+}
+
+// leetcode213
+func RobII(nums []int) int {
+	n := len(nums)
+	if n == 1 {
+		return nums[0]
+	} else if n == 2 {
+		return common.LargerNumber(nums[0], nums[1])
+	}
+	return common.LargerNumber(Rob(nums[0:n-1]), Rob(nums[1:]))
 }
 
 // leetcode216
@@ -842,7 +854,7 @@ func MaxSlidingWindow2(nums []int, k int) []int {
 }
 
 // leetcide240
-func SearchMatrix(matrix [][]int, target int) bool {
+func SearchMatrixII(matrix [][]int, target int) bool {
 	rows, cols := len(matrix), len(matrix[0])
 	lastRow := matrix[rows-1]
 	index, isfind := binarySearch(lastRow, target)

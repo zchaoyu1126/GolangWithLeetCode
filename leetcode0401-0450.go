@@ -3,6 +3,7 @@ package leetcode
 import (
 	"fmt"
 	"programs/internal/algorithmingo/algorithm"
+	"programs/kit/common"
 	"strconv"
 )
 
@@ -61,6 +62,25 @@ func NumberOfArithmeticSlices(nums []int) int {
 		}
 	}
 	return sum
+}
+
+// leetcode416
+func CanPartition(nums []int) bool {
+	sum := 0
+	for _, num := range nums {
+		sum += num
+	}
+	if sum%2 != 0 {
+		return false
+	}
+	V := int(sum / 2)
+	dp := make([]int, V+1)
+	for i := range nums {
+		for j := V; j >= nums[i]; j-- {
+			dp[j] = common.LargerNumber(dp[j], dp[j-nums[i]]+nums[i])
+		}
+	}
+	return dp[V] == V
 }
 
 // leetcode419

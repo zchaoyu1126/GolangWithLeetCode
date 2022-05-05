@@ -3,6 +3,7 @@ package leetcode
 import (
 	"math"
 	"programs/internal/algorithmingo/algorithm"
+	"programs/kit/common"
 	"strconv"
 	"strings"
 )
@@ -102,6 +103,43 @@ func RemoveRepByMap(slc []string) []string {
 		}
 	}
 	return result
+}
+
+// leetcode188
+func MaxProfit4(k int, prices []int) int {
+	n := len(prices)
+	if n == 0 || n == 1 || k == 0 {
+		return 0
+	}
+	dp := make([][][2]int, n)
+	for i := range dp {
+		dp[i] = make([][2]int, k+1)
+	}
+	// j=1时，代表第一次交易
+	dp[0][1][0] = 0          // 未持有股票
+	dp[0][1][1] = -prices[0] // 持有股票
+	for i := 1; i <= k; i++ {
+		dp[0][i][1] = -prices[0]
+	}
+	for i := 1; i < n; i++ {
+		for j := 1; j <= k; j++ {
+			// 第i天未持股票，之前一直没有或者今天把之前的卖了
+			dp[i][j][0] = common.LargerNumber(dp[i-1][j][0], dp[i-1][j][1]+prices[i])
+			// 第i天持有股票，之前一直有股票，或者是取消之前的买入操作，在股价更低的地方买入
+			dp[i][j][1] = common.LargerNumber(dp[i-1][j][1], dp[i-1][j-1][0]-prices[i])
+		}
+	}
+	return dp[n-1][k][0]
+}
+
+// leetcode198
+func Rob(nums []int) int {
+	dp := make([]int, len(nums)+1)
+	dp[1] = nums[0]
+	for i := 2; i <= len(nums); i++ {
+		dp[i] = common.LargerNumber(dp[i-1], dp[i-2]+nums[i-1])
+	}
+	return dp[len(nums)]
 }
 
 // leetcode199

@@ -1,6 +1,7 @@
 package leetcode
 
 import (
+	"container/heap"
 	"math"
 	"math/rand"
 	"sort"
@@ -155,6 +156,47 @@ func LongestDupSubstring(s string) string {
 		return ""
 	}
 	return s[start : start+length]
+}
+
+// leetcode1046
+type IntSliceHeap []int
+
+func (ls IntSliceHeap) Len() int {
+	return len(ls)
+}
+func (ls IntSliceHeap) Swap(i, j int) {
+	ls[i], ls[j] = ls[j], ls[i]
+}
+func (ls IntSliceHeap) Less(i, j int) bool {
+	return ls[i] > ls[j]
+}
+func (ls *IntSliceHeap) Push(x interface{}) {
+	*ls = append(*ls, x.(int))
+}
+func (ls *IntSliceHeap) Pop() interface{} {
+	old := *ls
+	n := len(old)
+	x := old[n-1]
+	*ls = old[0 : n-1]
+	return x
+}
+func LastStoneWeight(stones []int) int {
+	h := IntSliceHeap(stones)
+	heap.Init(&h)
+	for len(h) >= 2 {
+		y := heap.Pop(&h).(int)
+		x := heap.Pop(&h).(int)
+		if x == y {
+			continue
+		} else {
+			heap.Push(&h, y-x)
+		}
+	}
+	if len(h) == 0 {
+		return 0
+	} else {
+		return h[0]
+	}
 }
 
 // leetcode1047

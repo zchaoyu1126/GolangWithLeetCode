@@ -2,6 +2,7 @@ package leetcode
 
 import (
 	"fmt"
+	"programs/kit/common"
 	"sort"
 )
 
@@ -37,6 +38,23 @@ func FourSumCount(nums1 []int, nums2 []int, nums3 []int, nums4 []int) int {
 	return cnt
 }
 
+// leetcode455
+func FindContentChildren(g []int, s []int) int {
+	sort.Ints(g)
+	sort.Ints(s)
+	i, j, cnt := 0, 0, 0
+	for i < len(s) && j < len(g) {
+		if s[i] >= g[j] {
+			cnt++
+			i++
+			j++
+		} else {
+			i++
+		}
+	}
+	return cnt
+}
+
 // leetcode459
 func RepeatedSubstringPattern(s string) bool {
 	next := make([]int, len(s)+1)
@@ -59,6 +77,38 @@ func RepeatedSubstringPattern(s string) bool {
 		return false
 	}
 	return len(s)%(len(s)-last) == 0
+}
+
+// leetcode474
+func FindMaxForm(strs []string, m int, n int) int {
+	// calculate num of zero and one
+	strsNum := func(str string) (int, int) {
+		zeroNum, oneNum := 0, 0
+		for _, ch := range str {
+			if ch == '0' {
+				zeroNum++
+			} else {
+				oneNum++
+			}
+		}
+		return zeroNum, oneNum
+	}
+	w0, w1 := make([]int, len(strs)+1), make([]int, len(strs)+1)
+	for i, str := range strs {
+		w0[i+1], w1[i+1] = strsNum(str)
+	}
+	dp := make([][]int, m+1)
+	for i := range dp {
+		dp[i] = make([]int, n+1)
+	}
+	for i := 1; i <= len(strs); i++ {
+		for p := m; p >= w0[i]; p-- {
+			for q := n; q >= w1[i]; q-- {
+				dp[p][q] = common.LargerNumber(dp[p][q], dp[p-w0[i]][q-w1[i]]+1)
+			}
+		}
+	}
+	return dp[m][n]
 }
 
 // leetcode475
@@ -189,6 +239,90 @@ func FindPoisonedDuration(timeSeries []int, duration int) int {
 	}
 	res += (end - begin + 1)
 	return res
+}
+
+// leetcode494
+func FindTargetSumWays1(nums []int, target int) int {
+	var backtrace func(end, target int) int
+	backtrace = func(end, target int) int {
+		if end == 0 {
+			if target == 0 && nums[end] == 0 {
+				return 2
+			} else if target == nums[end] || target == -nums[end] {
+				return 1
+			}
+			return 0
+		}
+		res := 0
+		res += backtrace(end-1, target+nums[end])
+		res += backtrace(end-1, target-nums[end])
+		return res
+	}
+	ans := backtrace(len(nums)-1, target)
+	return ans
+}
+
+// leetcode494 剪枝版本
+func FindTargetSumWays2(nums []int, target int) int {
+	upperBound := make([]int, len(nums)+1)
+	lowerBound := make([]int, len(nums)+1)
+	for i := 1; i <= len(nums); i++ {
+		upperBound[i] = upperBound[i-1] + nums[i-1]
+		lowerBound[i] = lowerBound[i-1] - nums[i-1]
+	}
+
+	var backtrace func(end, target int) int
+	backtrace = func(end, target int) int {
+		if end == 0 {
+			if target == 0 && nums[end] == 0 {
+				return 2
+			} else if target == nums[end] || target == -nums[end] {
+				return 1
+			}
+			return 0
+		}
+		if target > upperBound[end+1] || target < lowerBound[end+1] {
+			return 0
+		}
+		res := 0
+		res += backtrace(end-1, target+nums[end])
+		res += backtrace(end-1, target-nums[end])
+		return res
+	}
+	ans := backtrace(len(nums)-1, target)
+	return ans
+}
+
+func FindTargetSumWays3(nums []int, target int) int {
+	abs := func(x int) int {
+		if x < 0 {
+			return -x
+		}
+		return x
+	}
+
+	sum := 0
+	for i := 0; i < len(nums); i++ {
+		sum += nums[i]
+	}
+	if abs(target) > sum {
+		return 0
+	}
+	if (sum+target)/2%2 == 1 {
+		return 0
+	}
+
+	leftSum := (sum + target) / 2
+	dp := make([]int, leftSum+1)
+	dp[0] = 1
+	// dp[i][j] += dp[i-1][j-nums[i]]
+	// 初始化dp[0]是1
+	for i := 0; i < len(nums); i++ {
+		for j := target; j >= nums[i]; j-- {
+			dp[j] += dp[j-nums[i]]
+		}
+	}
+	return dp[leftSum]
 }
 
 // leetcode496

@@ -299,6 +299,54 @@ func (l *MyLinkedList) Output() {
  * obj.DeleteAtIndex(index);
  */
 
+// leetcode713
+func NumSubarrayProductLessThanK713I(nums []int, k int) int {
+	n := len(nums)
+	if n == 0 {
+		return 0
+	}
+	res := 0
+	for i := 0; i < n; i++ {
+		mulV := 1
+		for j := i; j < n; j++ {
+			mulV *= nums[j]
+			if mulV < k {
+				res++
+			} else {
+				break
+			}
+		}
+	}
+	return res
+}
+
+func NumSubarrayProductLessThanK713II(nums []int, k int) int {
+	n := len(nums)
+	l := 0
+	res, mulV := 0, 1
+	for r := 0; r < n; r++ {
+		mulV *= nums[r]
+		for mulV >= k {
+			mulV /= nums[l]
+			l++
+		}
+		res++
+	}
+	return res
+}
+
+// leetcode714
+func MaxProfit6(prices []int, fee int) int {
+	n := len(prices)
+	dp := make([][2]int, n)
+	dp[0][0], dp[0][1] = 0, -prices[0]
+	for i := 1; i < n; i++ {
+		dp[i][0] = common.LargerNumber(dp[i-1][0], dp[i-1][1]+prices[i]-fee)
+		dp[i][1] = common.LargerNumber(dp[i-1][1], dp[i-1][0]-prices[i])
+	}
+	return dp[n-1][0]
+}
+
 // leetcode725
 func SplitListToParts(head *algorithm.ListNode, k int) []*algorithm.ListNode {
 	p := head
@@ -438,7 +486,7 @@ func NetworkDelayTime(times [][]int, n int, k int) int {
 }
 
 // leetcode746 看不懂题目系列
-func MinCostClimbingStairs(cost []int) int {
+func MinCostClimbingStairs1(cost []int) int {
 	// 网友热评:
 	// 我觉得这个题的描述应该改改：每个阶梯都有一定数量坨屎，
 	// 一次只能跨一个或者两个阶梯，走到一个阶梯就要吃光上面的屎，问怎么走才能吃最少的屎？
@@ -457,6 +505,18 @@ func MinCostClimbingStairs(cost []int) int {
 		dp[i+1][1] = common.SmallerNumber(dp[i-1][0], dp[i-1][1]) + cost[i]
 	}
 	return common.SmallerNumber(dp[length][0], dp[length][1])
+}
+
+func MinCostClimbingStairs3(cost []int) int {
+	dp := make([]int, len(cost)+1)
+	if len(cost) <= 1 {
+		return 0
+	}
+	dp[0], dp[1] = 0, 0
+	for i := 2; i <= len(cost); i++ {
+		dp[i] = common.SmallerNumber(dp[i-1]+cost[i-1], dp[i-2]+cost[i-2])
+	}
+	return dp[len(cost)]
 }
 
 // leetcode747

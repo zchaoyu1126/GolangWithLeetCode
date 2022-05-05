@@ -177,6 +177,63 @@ func LengthOfLastWord(s string) int {
 	return cnt
 }
 
+// leetcode62
+func UniquePaths(m int, n int) int {
+	dp := make([][]int, m)
+	for i := range dp {
+		dp[i] = make([]int, n)
+	}
+	dp[0][0] = 1
+	for i := 0; i < m; i++ {
+		for j := 0; j < n; j++ {
+			if i == 0 && j == 0 {
+				continue
+			}
+			if i-1 >= 0 && j-1 >= 0 {
+				dp[i][j] = dp[i-1][j] + dp[i][j-1]
+			} else if i-1 < 0 {
+				dp[i][j] = dp[i][j-1]
+			} else if j-1 < 0 {
+				dp[i][j] = dp[i-1][j]
+			}
+		}
+	}
+	fmt.Println(dp)
+	return dp[m-1][n-1]
+}
+
+// leetcode63
+func UniquePathsWithObstacles(obstacleGrid [][]int) int {
+	if len(obstacleGrid) == 0 || len(obstacleGrid[0]) == 0 {
+		return 0
+	}
+	m, n := len(obstacleGrid), len(obstacleGrid[0])
+	dp := make([][]int, m)
+	for i := range dp {
+		dp[i] = make([]int, n)
+	}
+	for i := 0; i < m; i++ {
+		for j := 0; j < n; j++ {
+			if obstacleGrid[i][j] == 1 {
+				continue
+			}
+			if i == 0 && j == 0 && obstacleGrid[i][j] == 0 {
+				dp[i][j] = 1
+				continue
+			}
+
+			if i-1 >= 0 && j-1 >= 0 {
+				dp[i][j] = dp[i-1][j] + dp[i][j-1]
+			} else if i-1 < 0 {
+				dp[i][j] = dp[i][j-1]
+			} else if j-1 < 0 {
+				dp[i][j] = dp[i-1][j]
+			}
+		}
+	}
+	return dp[m-1][n-1]
+}
+
 // leetcode66
 func PlusOne(digits []int) []int {
 	for i := len(digits) - 1; i >= 0; i-- {
@@ -302,6 +359,25 @@ func ClimbStairs(n int) int {
 		pre1 = tmp
 	}
 	return pre2
+}
+
+// leetcode74
+func SearchMatrixI(matrix [][]int, target int) bool {
+	// 此题中的matrix可转化为一维矩阵
+	m, n := len(matrix), len(matrix[0])
+	low, high := 0, m*n-1
+	for low <= high {
+		mid := (low + high) / 2
+		x, y := mid/m, mid%n
+		if target == matrix[x][y] {
+			return true
+		} else if target < matrix[x][y] {
+			low = mid + 1
+		} else if target > matrix[x][y] {
+			high = mid - 1
+		}
+	}
+	return false
 }
 
 // leetcode76
@@ -433,6 +509,27 @@ func Subsets(nums []int) [][]int {
 	backtrace(0)
 	res = append(res, []int{})
 	return res
+}
+
+// leetcode86
+func Partition86(head *algorithm.ListNode, x int) *algorithm.ListNode {
+	cur := head
+	l := &algorithm.ListNode{}
+	r := &algorithm.ListNode{}
+	n1, n2 := l, r
+	for cur != nil {
+		if cur.Val >= x {
+			r.Next = cur
+			r = r.Next
+		} else {
+			l.Next = cur
+			l = l.Next
+		}
+		cur = cur.Next
+	}
+	l.Next = n2.Next
+	r.Next = nil
+	return n1.Next
 }
 
 // leetcode88
@@ -609,12 +706,24 @@ func GenerateTrees(n int) []*algorithm.TreeNode {
 }
 
 // leetcode96
-func NumTrees(n int) int {
+func NumTrees1(n int) int {
 	ans := 1
 	for i := 2; i <= n; i++ {
 		ans = ans * (4*i - 2) / (i + 1)
 	}
 	return ans
+}
+
+func NumTrees2(n int) int {
+	dp := make([]int, n+5)
+	dp[0] = 1
+	for i := 1; i <= n; i++ {
+		for j := 0; j < i; j++ {
+			// 左边j个节点，右边i-j-1个节点
+			dp[i] += dp[j] * dp[i-j-1]
+		}
+	}
+	return dp[n]
 }
 
 // leetcode98

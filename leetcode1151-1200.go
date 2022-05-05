@@ -2,6 +2,7 @@ package leetcode
 
 import (
 	"fmt"
+	"programs/kit/common"
 	"strconv"
 	"strings"
 )
@@ -25,6 +26,39 @@ func DayOfYear(date string) int {
 		res++
 	}
 	return res
+}
+
+// leetcode1155
+func NumRollsToTarget(n int, k int, target int) int {
+	var h int = 1e9 + 7
+	dp := make([][]int, n+1)
+	for i := range dp {
+		dp[i] = make([]int, target+1)
+	}
+	dp[0][0] = 1
+	for i := 1; i <= n; i++ {
+		for j := 1; j <= target; j++ {
+			for p := 1; p <= k && p <= j; p++ {
+				dp[i][j] = (dp[i][j]%h + dp[i-1][j-p]%h) % h
+			}
+		}
+	}
+	return dp[n][target]
+}
+
+func NumRollsToTarget2(n int, k int, target int) int {
+	// 价值在外面，物品在里面，这个是求排列数
+	var h int = 1e9 + 7
+	dp := make([]int, target+1)
+	dp[0] = 1
+	for i := 1; i <= n; i++ {
+		for j := 1; j <= target; j++ {
+			for p := common.SmallerNumber(k, j); p >= 0; p-- {
+				dp[j] = (dp[j]%h + dp[j-p]%h) % h
+			}
+		}
+	}
+	return dp[target]
 }
 
 // leetcode1173

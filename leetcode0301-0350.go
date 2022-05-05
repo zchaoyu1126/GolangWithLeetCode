@@ -4,8 +4,32 @@ import (
 	"container/heap"
 	"fmt"
 	"programs/internal/algorithmingo/algorithm"
+	"programs/kit/common"
 	"sort"
 )
+
+// leetcode304
+type NumMatrix struct {
+	sum [][]int
+}
+
+func NewNumMatrix(matrix [][]int) NumMatrix {
+	m, n := len(matrix), len(matrix[0])
+	sum := make([][]int, m+1)
+	for i := range sum {
+		sum[i] = make([]int, n+1)
+	}
+	for i := 1; i <= m; i++ {
+		for j := 1; j <= n; j++ {
+			sum[i][j] = sum[i-1][j] + sum[i][j-1] - sum[i-1][j-1] + matrix[i-1][j-1]
+		}
+	}
+	return NumMatrix{sum: sum}
+}
+
+func (n *NumMatrix) SumRegion(row1 int, col1 int, row2 int, col2 int) int {
+	return n.sum[row2+1][col2+1] - n.sum[row1][col2+1] - n.sum[row2+1][col1] + n.sum[row1][col1]
+}
 
 // leetcode307
 type NumArray struct {
@@ -22,6 +46,28 @@ func (t *NumArray) Update(index int, val int) {
 
 func (t *NumArray) SumRange(left int, right int) int {
 	return t.SumRangeBetweenLR(left, right)
+}
+
+// leetcode309
+func MaxProfit(prices []int) int {
+	n := len(prices)
+	if n == 0 || n == 1 {
+		return 0
+	}
+	dp := make([][3]int, n)
+	dp[0][0] = -prices[0] // 持有一支股票
+	dp[0][1] = 0          // 未持有股票，但处于冷冻期，第i天刚卖出
+	dp[0][2] = 0          // 未持有股票，但不处于冷冻期
+
+	for i := 1; i < n; i++ {
+		// 持有股票
+		dp[i][0] = common.LargerNumber(dp[i-1][0], dp[i-1][2]-prices[i])
+		// 未持有股票, 因为今天刚卖出
+		dp[i][1] = dp[i-1][0] + prices[i]
+		// 未持有股票，昨天卖的，或者前几天卖的
+		dp[i][2] = common.LargerNumber(dp[i-1][1], dp[i-1][2])
+	}
+	return common.LargerNumber(dp[n-1][1], dp[n-1][2])
 }
 
 // leetcode318
@@ -44,6 +90,22 @@ func MaxProduct(words []string) int {
 		}
 	}
 	return length
+}
+
+// leetcode322
+func CoinChange(coins []int, amount int) int {
+	dp := make([]int, amount+1)
+	for i := 1; i <= amount; i++ {
+		dp[i] = INT_MAX
+	}
+	for i := 0; i < len(coins); i++ {
+		for j := coins[i]; j <= amount; j++ {
+			if dp[j-coins[i]] != INT_MAX {
+				dp[j] = common.SmallerNumber(dp[j], dp[j-coins[i]]+1)
+			}
+		}
+	}
+	return dp[amount]
 }
 
 // leetcode326
@@ -152,6 +214,26 @@ func IsSelfCrossing(distance []int) bool {
 		}
 	}
 	return false
+}
+
+// leetcode343
+func IntegerBreak(n int) int {
+	dp := make([]int, n+1)
+	if n == 0 {
+		return 0
+	}
+	if n <= 2 {
+		return 1
+	}
+	dp[1], dp[2] = 1, 1
+	for i := 3; i <= n; i++ {
+		for j := 1; j <= i/2; j++ {
+			x := common.LargerNumber(dp[j], j)
+			y := common.LargerNumber(dp[i-j], i-j)
+			dp[i] = common.LargerNumber(dp[i], x*y)
+		}
+	}
+	return dp[n]
 }
 
 // leetcode344

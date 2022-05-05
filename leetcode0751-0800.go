@@ -76,3 +76,25 @@ func ValidTicTacToe(board []string) bool {
 	}
 	return true
 }
+
+// leetcode797
+func AllPathsSourceTarget(graph [][]int) [][]int {
+	n := len(graph)
+	ans := [][]int{}
+	cur := []int{0}
+	var dfs func(int)
+	dfs = func(x int) {
+		if x == n-1 {
+			tmp := make([]int, len(cur))
+			copy(tmp, cur)
+			ans = append(ans, tmp)
+		}
+		for i := 0; i < len(graph[x]); i++ {
+			cur = append(cur, graph[x][i])
+			dfs(graph[x][i])
+			cur = cur[:len(cur)-1]
+		}
+	}
+	dfs(0)
+	return ans
+}

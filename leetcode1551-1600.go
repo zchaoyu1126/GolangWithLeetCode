@@ -1,5 +1,7 @@
 package leetcode
 
+import "sort"
+
 // leetcode1576
 func ModifyString(s string) string {
 	length := len(s)
@@ -87,4 +89,38 @@ func NumTriplets(nums1 []int, nums2 []int) int {
 	}
 
 	return res
+}
+
+// leetcode1589
+func MaxSumRangeQuery(nums []int, requests [][]int) int {
+	diff := make([]int, len(nums)+1)
+	// 由于题目的特殊性，省去了构建差分数组的步骤
+	// diff[0] = nums[0]
+	// diff[i] = nums[i] - nums[i-1]
+
+	// 区间查询
+	for _, request := range requests {
+		l, r := request[0], request[1]
+		diff[l] += 1
+		diff[r+1] -= 1
+	}
+
+	// 求前缀和
+	sum := make([]int, len(nums)+2)
+	// sum[i]表示的是前面i-1项所有的和
+	// i~j项的和表示为， sum[j+1]-sum[i]
+	for i := 1; i <= len(diff); i++ {
+		sum[i] = sum[i-1] + diff[i]
+	}
+	// sum[1]代表下标0出现了几次
+	// sum[len(nums)] 代表下标len(nums)-1出现了几次
+	// 去掉首尾
+	sum = sum[1 : len(sum)-1]
+	sort.Ints(nums)
+	sort.Ints(sum)
+	ans := 0
+	for i := 0; i < len(nums); i++ {
+		ans += nums[i] * sum[i]
+	}
+	return ans
 }
