@@ -77,3 +77,34 @@ func SmallestRangeI(nums []int, k int) int {
 	}
 	return common.LargerNumber(0, maxV-minV-2*k)
 }
+
+// leetcode933
+type RecentCounter struct {
+	// 我基本的思路是类似滑动窗口，每次Ping的时候，对当前的窗口进行移动
+	// 移动到max(0,t-3000)
+	// 这么写会有内存性能的问题吗？
+	// 预先分配好3000的容量
+	cnt   int
+	left  int
+	times []int
+}
+
+func NewRecentCounter() RecentCounter {
+	return RecentCounter{0, 0, make([]int, 0, 3000)}
+}
+
+func (this *RecentCounter) Ping(t int) int {
+	this.cnt++
+	this.times = append(this.times, t)
+	v := common.LargerNumber(0, t-3000)
+	for i := 0; i < len(this.times); i++ {
+		if this.times[i] < v {
+			this.cnt--
+		} else {
+			this.left = i
+			break
+		}
+	}
+	this.times = this.times[this.left:]
+	return this.cnt
+}

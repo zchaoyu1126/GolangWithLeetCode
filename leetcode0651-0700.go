@@ -45,6 +45,51 @@ func TrimBST(root *algorithm.TreeNode, low int, high int) *algorithm.TreeNode {
 	return root
 }
 
+// leetcode674 最长的递增子数组
+func FindLengthOfLCIS(nums []int) int {
+	// dp[i] 表示以i结尾时，能够达到的最长的递增子数组长度
+	n := len(nums)
+	if n == 0 {
+		return 0
+	}
+	dp := make([]int, n)
+	for i := 0; i < n; i++ {
+		dp[i] = 1
+	}
+	res := 1
+	for i := 1; i < n; i++ {
+		if nums[i] > nums[i-1] {
+			dp[i] = dp[i-1] + 1
+			if res < dp[i] {
+				res = dp[i]
+			}
+		}
+	}
+	return res
+}
+
+func FindLengthOfLCISII(nums []int) int {
+	n := len(nums)
+	if n == 0 {
+		return 0
+	}
+	cur, res := 1, 1
+	for i := 1; i < n; i++ {
+		if nums[i] > nums[i-1] {
+			cur++
+		} else {
+			if cur > res {
+				res = cur
+			}
+			cur = 1
+		}
+	}
+	if cur > res {
+		res = cur
+	}
+	return res
+}
+
 // leetcode686
 func RepeatedStringMatch(a string, b string) int {
 	lenB := len(b)

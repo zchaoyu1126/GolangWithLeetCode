@@ -507,7 +507,6 @@ func RemoveElement2(nums []int, val int) int {
 	return slow
 }
 
-
 // leetcode28
 func StrStr1(s string, t string) int {
 	if s == "" && t == "" {
