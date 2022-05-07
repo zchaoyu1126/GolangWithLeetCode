@@ -184,6 +184,65 @@ func flat(root *algorithm.MultiListNode) (head, tail *algorithm.MultiListNode) {
 	return h, t
 }
 
+// leetcode433
+func MinMutation(start string, end string, bank []string) int {
+	n := len(bank) + 1
+	matrix := make([][]int, n)
+	for i := range matrix {
+		matrix[i] = make([]int, n)
+	}
+	bank = append(bank, start)
+	diff := func(x, y string) int {
+		res := 0
+		for i := 0; i < len(x); i++ {
+			if x[i] != y[i] {
+				res++
+			}
+		}
+		return res
+	}
+	for i := 0; i < n; i++ {
+		for j := i + 1; j < n; j++ {
+			if diff(bank[i], bank[j]) == 1 {
+				matrix[i][j] = 1
+				matrix[j][i] = 1
+			}
+		}
+	}
+
+	queue := []int{n - 1}
+	visited := make([]int, n)
+	visited[n-1] = 1
+
+	curSize, nextSize, step, find := 1, 0, -1, false
+	for len(queue) != 0 && !find {
+		step++
+		for curSize != 0 {
+			front := queue[0]
+			visited[front] = 1
+			if bank[front] == end {
+				find = true
+				break
+			}
+			queue = queue[1:]
+			curSize--
+
+			for i := 0; i < n; i++ {
+				if matrix[front][i] == 1 && visited[i] == 0 {
+					queue = append(queue, i)
+					nextSize++
+				}
+			}
+		}
+		curSize = nextSize
+		nextSize = 0
+	}
+	if step == 0 || !find {
+		return -1
+	}
+	return step
+}
+
 // leetcode438
 func FindAnagrams(s string, p string) []int {
 	mp1, mp2 := [26]int{}, [26]int{}
