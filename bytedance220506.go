@@ -4,25 +4,53 @@ package leetcode
 
 // 第二题：前缀树
 // 给定一组字符串，判断是否存在一个字符串是其他字符串的前缀。
-type TrieNode struct {
-	son   map[byte]*TrieNode
-	isEnd bool
+type MyTrieNode struct {
+	son    map[byte]*MyTrieNode
+	count  int
+	prefix int
 }
 
-type Trie struct {
-	root *TrieNode
+type MyTrie struct {
+	root *MyTrieNode
 }
 
-func NewRuneTrie() *Trie {
-	return &Trie{root: &TrieNode{son: make(map[byte]*TrieNode)}}
+func NewRuneTrie() *MyTrie {
+	return &MyTrie{root: &MyTrieNode{son: make(map[byte]*MyTrieNode), count: 0, prefix: 0}}
 }
 
-func (t *Trie) Insert(str string) {
-
+func (t *MyTrie) Insert(str string) {
+	if t.root == nil || str == "" {
+		return
+	}
+	bytes := []byte(str)
+	root := t.root
+	for i := 0; i < len(bytes); i++ {
+		if _, has := root.son[bytes[i]]; !has {
+			// doesn't exist
+			root.son[bytes[i]] = &MyTrieNode{}
+		}
+		root.son[bytes[i]].prefix++
+		root = root.son[bytes[i]]
+	}
+	root.count++
 }
 
-func (t *Trie) Find(str string) (bool, bool) {
-	return false, false
+func (t *MyTrie) Find(str string) (bool, bool) {
+	if t.root == nil || str == "" {
+		return false, false
+	}
+	root := t.root
+	bytes := []byte(str)
+	for i := 0; i < len(bytes); i++ {
+		if _, has := root.son[bytes[i]]; !has {
+			return false, false
+		}
+		root = root.son[bytes[i]]
+	}
+	if root.count != 0 {
+		return true, true
+	}
+	return true, false
 }
 
 func T2(strs []string) bool {

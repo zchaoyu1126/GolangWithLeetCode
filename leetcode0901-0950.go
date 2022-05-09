@@ -93,18 +93,39 @@ func NewRecentCounter() RecentCounter {
 	return RecentCounter{0, 0, make([]int, 0, 3000)}
 }
 
-func (this *RecentCounter) Ping(t int) int {
-	this.cnt++
-	this.times = append(this.times, t)
+func (r *RecentCounter) Ping(t int) int {
+	r.cnt++
+	r.times = append(r.times, t)
 	v := common.LargerNumber(0, t-3000)
-	for i := 0; i < len(this.times); i++ {
-		if this.times[i] < v {
-			this.cnt--
+	for i := 0; i < len(r.times); i++ {
+		if r.times[i] < v {
+			r.cnt--
 		} else {
-			this.left = i
+			r.left = i
 			break
 		}
 	}
-	this.times = this.times[this.left:]
-	return this.cnt
+	r.times = r.times[r.left:]
+	return r.cnt
+}
+
+// leetcode942
+func DiStringMatch(s string) []int {
+	n := len(s)
+	res := make([]int, n+1)
+	l, r := 0, n
+
+	for i := 0; i < n; i++ {
+		if s[i] == 'I' {
+			// res[i] < res[i+1]
+			res[i] = l
+			l++
+		} else if s[i] == 'D' {
+			// res[i] > res[i+1]
+			res[i] = r
+			r--
+		}
+	}
+	res[n] = l
+	return res
 }

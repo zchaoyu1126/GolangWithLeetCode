@@ -4,6 +4,7 @@ import (
 	"container/heap"
 	"math"
 	"math/rand"
+	"programs/kit/common"
 	"sort"
 	"time"
 )
@@ -89,6 +90,25 @@ func ColorBorder(grid [][]int, row int, col int, color int) [][]int {
 		}
 	}
 	return res
+}
+
+// leetcode1035
+func MaxUncrossedLines(nums1 []int, nums2 []int) int {
+	n, m := len(nums1), len(nums2)
+	dp := make([][]int, n+1)
+	for i := range dp {
+		dp[i] = make([]int, m+1)
+	}
+	for i := 1; i <= n; i++ {
+		for j := 1; j <= m; j++ {
+			if nums1[i] == nums2[j] {
+				dp[i][j] = dp[i-1][j-1] + 1
+			} else {
+				dp[i][j] = common.LargerNumber(dp[i-1][j], dp[i][j-1])
+			}
+		}
+	}
+	return dp[n][m]
 }
 
 // leetcode1044
