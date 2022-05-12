@@ -425,6 +425,83 @@ func IsRectangleCover(rectangles [][]int) bool {
 	return true
 }
 
+// leetcode392
+func IsSubsequence1(s string, t string) bool {
+	n := len(s)
+	m := len(t)
+	dp := make([][]int, n+1)
+	for i := range dp {
+		dp[i] = make([]int, m+1)
+	}
+	for i := 1; i <= n; i++ {
+		for j := 1; j <= m; j++ {
+			if s[i-1] == t[j-1] {
+				dp[i][j] = dp[i-1][j-1] + 1
+			} else {
+				dp[i][j] = common.LargerNumber(dp[i-1][j], dp[i][j-1])
+			}
+		}
+	}
+	return dp[n][m] == n
+}
+
+// 如果有大量输入的 S，称作 S1, S2, ... , Sk 其中 k >= 10亿，
+// 你需要依次检查它们是否为 T 的子序列。在这种情况下，你会怎样改变代码？
+func IsSubsequence2(s string, t string) bool {
+	n := len(s)
+	m := len(t)
+	if n == 0 {
+		return true
+	} else if m == 0 {
+		return false
+	}
+	// 贪心双指针的写法 如果 s[i] == s[j], i++, j++ 否则j++
+	// 如果i1,i2都能和j匹配上，取i1，因为i2能行，那么i1必然能行
+	i := 0
+	for j := 0; i < n && j < m; j++ {
+		if s[i] == t[j] {
+			i++
+		}
+	}
+	return i == n
+}
+
+func IsSubsequence3(s string, t string) bool {
+	n := len(s)
+	m := len(t)
+	if n == 0 {
+		return true
+	} else if m == 0 {
+		return false
+	}
+	dp := make([][26]int, m+1)
+	for i := 0; i < 26; i++ {
+		dp[m][i] = -1
+	}
+	// dp[i][j] 代表i后面处，下一个j字符的位置
+	for i := m - 1; i >= 0; i-- {
+		x := int(t[i] - 'a')
+		for j := 0; j < 26; j++ {
+			if j == x {
+				dp[i][j] = i
+			} else {
+				dp[i][j] = dp[i+1][j]
+			}
+		}
+	}
+	cur := 0
+	for i := 0; i < n; i++ {
+		x := int(s[i] - 'a')
+		if dp[cur][x] == -1 {
+			return false
+		} else {
+			// 先到cur,然后再到cur+1
+			cur = dp[cur][x] + 1
+		}
+	}
+	return true
+}
+
 // leetcode397
 // func IntegerReplacement(n int) int {
 // 	dp := make([]int, n+1)

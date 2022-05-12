@@ -216,6 +216,54 @@ func IsSelfCrossing(distance []int) bool {
 	return false
 }
 
+// leetcode337
+var mp337 map[*algorithm.TreeNode]int
+
+func Rob337_1(root *algorithm.TreeNode) int {
+	mp337 = make(map[*algorithm.TreeNode]int)
+	return dfs(root)
+}
+func dfs(root *algorithm.TreeNode) int {
+	if root == nil {
+		return 0
+	}
+	if val, has := mp337[root]; has {
+		return val
+	}
+	// 决定抢根节点
+	val1 := root.Val
+	if root.Left != nil {
+		val1 += dfs(root.Left.Left)
+		val1 += dfs(root.Left.Right)
+	}
+	if root.Right != nil {
+		val1 += dfs(root.Right.Left)
+		val1 += dfs(root.Right.Right)
+	}
+	// 决定放弃根节点
+	val2 := dfs(root.Left) + dfs(root.Right)
+	res := common.LargerNumber(val1, val2)
+	mp337[root] = res
+	return res
+}
+
+func Rob337_2(root *algorithm.TreeNode) int {
+	var dfs func(*algorithm.TreeNode) [2]int
+	dfs = func(root *algorithm.TreeNode) [2]int {
+		if root == nil {
+			return [2]int{0, 0}
+		}
+		v1 := dfs(root.Left)
+		v2 := dfs(root.Right)
+		res := [2]int{}
+		res[0] = v1[0] + v2[0] + root.Val
+		res[1] = common.LargerNumber(v1[0], v1[1]) + common.LargerNumber(v2[0], v2[1])
+		return res
+	}
+	res := dfs(root)
+	return common.LargerNumber(res[0], res[1])
+}
+
 // leetcode343
 func IntegerBreak(n int) int {
 	dp := make([]int, n+1)

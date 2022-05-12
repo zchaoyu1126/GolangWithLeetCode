@@ -120,3 +120,30 @@ func TotalMoney(n int) int {
 	}
 	return res
 }
+
+// leetcode1728
+// rows == grid.length
+// cols = grid[i].length
+// 1 <= rows, cols <= 8
+// grid[i][j] 只包含字符 'C' ，'M' ，'F' ，'.' 和 '#' 。
+// grid 中只包含一个 'C' ，'M' 和 'F' 。
+// 1 <= catJump, mouseJump <= 8
+
+// func CanMouseWin(grid []string, catJump int, mouseJump int) bool {
+// 	n, m := len(grid), len(grid[0])
+// 	var fx, fy int
+// 	var cx, cy int
+// 	var mx, my int
+// 	for i := 0; i < n; i++ {
+// 		for j := 0; j < m; j++ {
+// 			if grid[i][j] == 'F' {
+// 				fx, fy = i, j
+// 			} else if grid[i][j] == 'M' {
+// 				mx, my = i, j
+// 			} else if grid[i][j] == 'C' {
+// 				cx, cy = i, j
+// 			}
+// 		}
+// 	}
+
+// }
