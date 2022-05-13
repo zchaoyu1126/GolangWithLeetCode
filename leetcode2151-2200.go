@@ -5,6 +5,7 @@ import (
 	"programs/kit/common"
 	"sort"
 	"strconv"
+	"strings"
 )
 
 // leetcode2164
@@ -259,6 +260,17 @@ func MaximumANDSum(nums []int, numSlots int) int {
 
 	km := algorithm.NewKmAlgo(numSlots*2, true, scope)
 	return km.KuhnMunkras()
+}
+
+// leetcode2185
+func PrefixCount(words []string, pref string) int {
+	cnt := 0
+	for _, word := range words {
+		if strings.HasPrefix(word, pref) {
+			cnt++
+		}
+	}
+	return cnt
 }
 
 // leetcode2194
