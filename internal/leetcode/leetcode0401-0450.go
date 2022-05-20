@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"programs/internal/algorithmingo/algorithm"
 	"programs/kit/utils"
+	"sort"
 	"strconv"
 )
 
@@ -241,6 +242,46 @@ func MinMutation(start string, end string, bank []string) int {
 		return -1
 	}
 	return step
+}
+
+// leetcode436
+// 第一维是区间起点
+// 第二维是下标信息
+type IntervalInfo [][2]int
+
+func (it IntervalInfo) Len() int      { return len(it) }
+func (it IntervalInfo) Swap(i, j int) { it[i], it[j] = it[j], it[i] }
+func (it IntervalInfo) Less(i, j int) bool {
+	if it[i][0] == it[j][0] {
+		return it[i][1] < it[j][1]
+	}
+	return it[i][0] < it[j][0]
+}
+
+func FindRightInterval(intervals [][]int) []int {
+	n := len(intervals)
+	info := make([][2]int, n)
+	res := make([]int, n)
+	for i := 0; i < len(intervals); i++ {
+		info[i][0] = intervals[i][0]
+		info[i][1] = i
+	}
+	sort.Sort(IntervalInfo(info))
+	for i, interval := range intervals {
+		r := interval[1]
+		// 返回第一个使得f[i]=true的值，没有则返回n
+		// 注意一个区间的右区间可以是它自己，这个题目里面没有说明
+		idx := sort.Search(n, func(j int) bool {
+			// return i != info[j][1] && info[j][0] >= r
+			return info[j][0] >= r
+		})
+		if idx == n {
+			res[i] = -1
+		} else {
+			res[i] = idx
+		}
+	}
+	return res
 }
 
 // leetcode438
