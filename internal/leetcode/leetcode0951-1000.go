@@ -32,6 +32,19 @@ func IsAlienSorted(words []string, order string) bool {
 	return true
 }
 
+// leetcode961
+func RepeatedNTimes(nums []int) int {
+	n := len(nums)
+	mp := make(map[int]struct{}, n)
+	for _, val := range nums {
+		if _, has := mp[val]; has {
+			return val
+		}
+		mp[val] = struct{}{}
+	}
+	return -1
+}
+
 // leetcode977
 func SortedSquares1(nums []int) []int {
 	i, j := 0, len(nums)-1
