@@ -5,6 +5,7 @@ import (
 	"math"
 	"programs/internal/algorithmingo/algorithm"
 	"programs/kit/utils"
+	"sort"
 	"strings"
 )
 
@@ -111,6 +112,77 @@ func FindLengthOfLCISII(nums []int) int {
 		res = cur
 	}
 	return res
+}
+
+// leetcode675
+type treeInfo struct {
+	Height int
+	x, y   int
+}
+
+type treeInfoSlice []treeInfo
+
+func (t treeInfoSlice) Len() int           { return len(t) }
+func (t treeInfoSlice) Less(i, j int) bool { return t[i].Height < t[j].Height }
+func (t treeInfoSlice) Swap(i, j int)      { t[i], t[j] = t[j], t[i] }
+
+func CutOffTree(forest [][]int) int {
+	n, m := len(forest), len(forest[0])
+	tree := make([]treeInfo, 0, n*m)
+	for i := 0; i < n; i++ {
+		for j := 0; j < m; j++ {
+			if forest[i][j] >= 2 {
+				tree = append(tree, treeInfo{forest[i][j], i, j})
+			}
+		}
+	}
+	sort.Sort(treeInfoSlice(tree))
+
+	prevX, prevY, cnt := 0, 0, 0
+	for _, t := range tree {
+		curX, curY := t.x, t.y
+		steps := bfs(forest, prevX, prevY, curX, curY)
+		if steps == -1 {
+			return -1
+		}
+		cnt += steps
+		prevX, prevY = curX, curY
+	}
+	return cnt
+}
+
+func bfs(arr [][]int, startX, startY, endX, endY int) int {
+	n, m := len(arr), len(arr[0])
+	dx := []int{1, -1, 0, 0}
+	dy := []int{0, 0, 1, -1}
+	steps := 0
+	visited := make([][]int, n)
+	for i := range visited {
+		visited[i] = make([]int, m)
+	}
+	queue := [][2]int{{startX, startY}}
+	visited[startX][startY] = 1
+	for len(queue) != 0 {
+		size := len(queue)
+		for i := 0; i < size; i++ {
+			top := queue[len(queue)-1]
+			queue = queue[:len(queue)-1]
+			x, y := top[0], top[1]
+			if x == endX && y == endY {
+				return steps
+			}
+			for i := 0; i < 4; i++ {
+				nx, ny := x+dx[i], y+dy[i]
+				// 检查是否合法
+				if nx < n && nx >= 0 && ny < m && ny >= 0 && visited[nx][ny] != 1 && arr[nx][ny] != 0 {
+					queue = append(queue, [2]int{nx, ny})
+					visited[nx][ny] = 1
+				}
+			}
+		}
+		steps++
+	}
+	return -1
 }
 
 // leetcode686

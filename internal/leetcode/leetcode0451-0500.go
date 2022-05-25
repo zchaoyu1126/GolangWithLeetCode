@@ -79,6 +79,29 @@ func RepeatedSubstringPattern(s string) bool {
 	return len(s)%(len(s)-last) == 0
 }
 
+// leetcode467
+func FindSubstringInWraproundString(p string) int {
+	// dp[i]代表以字母'a'+i结尾的最大长度
+	dp := make([]int, 26)
+	k := 1 //连续的长度
+	dp[int(p[0]-'a')] = 1
+	for i := 1; i < len(p); i++ {
+		if p[i]-p[i-1] == 1 || p[i-1]-p[i] == 25 {
+			// 如果是连续的
+			k++
+		} else {
+			// 如果不连续
+			k = 1
+		}
+		dp[int(p[i]-'a')] = utils.MaxNum(k, dp[int(p[i]-'a')])
+	}
+	res := 0
+	for i := 0; i < 26; i++ {
+		res += dp[i]
+	}
+	return res
+}
+
 // leetcode474
 func FindMaxForm(strs []string, m int, n int) int {
 	// calculate num of zero and one
