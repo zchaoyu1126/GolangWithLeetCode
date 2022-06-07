@@ -464,6 +464,163 @@ func CountOfAtoms(formula string) string {
 	return res
 }
 
+// leetcode729
+type Events [][2]int
+
+func (e Events) Len() int           { return len(e) }
+func (e Events) Swap(i, j int)      { e[i], e[j] = e[j], e[i] }
+func (e Events) Less(i, j int) bool { return e[i][0] < e[j][0] }
+
+type MyCalendar struct {
+	events [][2]int
+}
+
+func NewMyCalendar() MyCalendar {
+	return MyCalendar{make([][2]int, 0, 1000)}
+}
+
+func (m *MyCalendar) Book(start int, end int) bool {
+	n := len(m.events)
+	if n == 0 {
+		m.events = append(m.events, [2]int{start, end})
+		return true
+	}
+
+	idx := sort.Search(n, func(i int) bool {
+		return m.events[i][0] > start
+	})
+	// fmt.Println(idx)
+	// fmt.Println(idx, m.events)
+	if idx == n {
+		// m.events[i][0]全都比start小
+		if m.events[n-1][1] > start {
+			return false
+		}
+		m.events = append(m.events, [2]int{start, end})
+		return true
+	} else if idx == 0 {
+		// m.events[i][0]全都比start大
+		if m.events[0][0] < end {
+			return false
+		}
+		m.events = append([][2]int{{start, end}}, m.events...)
+		return true
+	}
+	// m.events[idx][0] > start
+	// m.events[idx-1][0] <= start
+	if m.events[idx-1][0] == start {
+		return false
+	}
+	if m.events[idx-1][1] <= start && m.events[idx][0] >= end {
+		m.events = append(m.events[:idx], append([][2]int{{start, end}}, m.events[idx:]...)...)
+		return true
+	}
+	return false
+}
+
+// leetcode732
+type node struct {
+	left      *node
+	right     *node
+	l, mid, r int
+	v, add    int
+}
+
+func newNode(l, r int) *node {
+	return &node{
+		l:   l,
+		r:   r,
+		mid: int(uint(l+r) >> 1),
+	}
+}
+
+func max(x, y int) int {
+	if x > y {
+		return x
+	}
+	return y
+}
+
+type segmentTree struct {
+	root *node
+}
+
+func newSegmentTree() *segmentTree {
+	return &segmentTree{
+		root: newNode(1, 1e9+1),
+	}
+}
+
+func (t *segmentTree) modify(l, r, v int, n *node) {
+	if l > r {
+		return
+	}
+	if n.l >= l && n.r <= r {
+		n.v += v
+		n.add += v
+		return
+	}
+	t.pushdown(n)
+	if l <= n.mid {
+		t.modify(l, r, v, n.left)
+	}
+	if r > n.mid {
+		t.modify(l, r, v, n.right)
+	}
+	t.pushup(n)
+}
+
+func (t *segmentTree) query(l, r int, n *node) int {
+	if l > r {
+		return 0
+	}
+	if n.l >= l && n.r <= r {
+		return n.v
+	}
+	t.pushdown(n)
+	v := 0
+	if l <= n.mid {
+		v = max(v, t.query(l, r, n.left))
+	}
+	if r > n.mid {
+		v = max(v, t.query(l, r, n.right))
+	}
+	return v
+}
+
+func (t *segmentTree) pushup(n *node) {
+	n.v = max(n.left.v, n.right.v)
+}
+
+func (t *segmentTree) pushdown(n *node) {
+	if n.left == nil {
+		n.left = newNode(n.l, n.mid)
+	}
+	if n.right == nil {
+		n.right = newNode(n.mid+1, n.r)
+	}
+	if n.add != 0 {
+		n.left.add += n.add
+		n.right.add += n.add
+		n.left.v += n.add
+		n.right.v += n.add
+		n.add = 0
+	}
+}
+
+type MyCalendarThree struct {
+	tree *segmentTree
+}
+
+func NewMyCalendarThree() MyCalendarThree {
+	return MyCalendarThree{newSegmentTree()}
+}
+
+func (m *MyCalendarThree) BookThree(start int, end int) int {
+	m.tree.modify(start+1, end, 1, m.tree.root)
+	return m.tree.query(1, int(1e9)+1, m.tree.root)
+}
+
 // leetcode743
 func NetworkDelayTime(times [][]int, n int, k int) int {
 	mp := make(map[int]map[int]int)

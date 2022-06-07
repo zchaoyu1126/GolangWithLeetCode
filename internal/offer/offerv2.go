@@ -1,6 +1,8 @@
 package offer
 
-import "programs/internal/algorithmingo/algorithm"
+import (
+	"programs/internal/algorithmingo/algorithm"
+)
 
 // 03
 func FindRepeatNumber(nums []int) int {
@@ -108,4 +110,62 @@ func ReverseList(head *algorithm.ListNode) *algorithm.ListNode {
 	newHead := ReverseList(remain)
 	remain.Next = head
 	return newHead
+}
+
+// 114
+func AlienOrder(words []string) string {
+	mp := make(map[int]map[int]struct{}, 26)
+	degree := make(map[int]int, 26)
+	for _, word := range words {
+		for _, ch := range word {
+			degree[int(ch-'a')] = 0
+		}
+	}
+	for i := 0; i < len(words); i++ {
+		for j := i + 1; j < len(words); j++ {
+			n, m := len(words[i]), len(words[j])
+			for k := 0; k < n; k++ {
+				if k >= m {
+					return ""
+				}
+				x, y := int(words[i][k]-'a'), int(words[j][k]-'a')
+				if x != y {
+					if _, exist := mp[x]; !exist {
+						mp[x] = make(map[int]struct{}, 26)
+					}
+					if _, exist := mp[x][y]; !exist {
+						mp[x][y] = struct{}{}
+						degree[y]++
+					}
+					break
+				}
+			}
+		}
+	}
+
+	queue := []int{}
+	for key, val := range degree {
+		if val == 0 {
+			queue = append(queue, key)
+		}
+	}
+
+	cnt, res := 0, []byte{}
+	for len(queue) != 0 {
+		front := queue[0]
+		queue = queue[1:]
+		cnt++
+		res = append(res, byte(front+'a'))
+		for key, _ := range mp[front] {
+			degree[key]--
+			if degree[key] == 0 {
+				queue = append(queue, key)
+			}
+		}
+	}
+
+	if cnt != len(degree) {
+		return ""
+	}
+	return string(res)
 }

@@ -2,6 +2,7 @@ package leetcode
 
 import (
 	"fmt"
+	"math"
 	"programs/internal/algorithmingo/algorithm"
 	"sort"
 )
@@ -199,6 +200,30 @@ func ProfitableSchemes(n int, minProfit int, group []int, profit []int) int {
 		}
 	}
 	return dp[m][n]
+}
+
+// leetcode875
+func MinEatingSpeed(piles []int, h int) int {
+	costHour := func(piles []int, n int) int {
+		res := 0
+		for _, pile := range piles {
+			res += int(math.Ceil(float64(pile) / float64(n)))
+		}
+		return res
+	}
+	binarySearch := func(piles []int, target int) int {
+		l, h := 0, int(1e9)
+		for l <= h {
+			m := (l + h) >> 1
+			if costHour(piles, m) <= target {
+				h = m - 1
+			} else {
+				l = m + 1
+			}
+		}
+		return l
+	}
+	return binarySearch(piles, h)
 }
 
 // leetcode881

@@ -1,102 +1,135 @@
 package main
 
 import (
-	"container/list"
 	"fmt"
+
+	"github.com/zchaoyu1126/gostl/queue"
 )
 
-func main() {
-	// 新建一个链表
-	l := list.New()
-
-	// func (l *List) PushFront(v interface{}) *Element
-	// 头插法插入一个节点，并返回新生成的节点
-	l.PushFront(20)
-
-	// func (l *List) PushBack(v interface{}) *Element
-	// 尾插法插入一个节点，并返回新生成的节点
-	l.PushBack(35)
-
-	// func (l *List) Front() *Element
-	// func (l *List) Back() *Element
-	// 输出链表头节点和尾节点的值
-	fmt.Printf("head is %d\n", l.Front().Value)
-	fmt.Printf("tail is %d\n", l.Back().Value)
-
-	other := list.New()
-	other.PushFront(1)
-	other.PushFront(2)
-	other.PushFront(3)
-
-	// func (l *List) PushFrontList(other *List)
-	// 创建链表other的拷贝, 顺序地以头插法将每个节点插入链表l
-	l.PushFrontList(other)
-	for e := l.Front(); e != nil; e = e.Next() {
-		fmt.Printf("%d ", e.Value)
-	}
-	fmt.Println()
-
-	// func (l *List) PushBackList(other *List)
-	// 创建链表other的拷贝, 顺序地以尾插法将每个节点插入链表l
-	l.PushBackList(other)
-	for e := l.Front(); e != nil; e = e.Next() {
-		fmt.Printf("%d ", e.Value)
-	}
-	fmt.Println()
-
-	// func (l *List) InsertBefore(v interface{}, mark *Element) *Element
-	// 将一个值为v的新元素插入到mark前面，并返回生成的新元素。
-	// 如果mark不是l的元素，l不会被修改。
-
-	// func (l *List) InsertAfter(v interface{}, mark *Element) *Element
-	// 将一个值为v的新元素插入到mark后面，并返回新生成的元素。
-	// 如果mark不是l的元素，l不会被修改。
-	for e := l.Front(); e != nil; e = e.Next() {
-		x := e.Value.(int)
-		if x == 35 {
-			l.InsertBefore(25, e)
-		} else if x == 20 {
-			l.InsertAfter(29, e)
-		}
-	}
-	for e := l.Front(); e != nil; e = e.Next() {
-		fmt.Printf("%d ", e.Value)
-	}
-	fmt.Println()
-
-	// func (l *List) MoveToFront(e *Element)
-	// MoveToFront将元素e移动到链表的第一个位置，如果e不是l的元素，l不会被修改。
-	// 注：下面的代码这样是可以的，但是如果将val==1的节点移动到头部，那么将会出现死循环
-	// 因为两个1都被移动到了头部，所以一直在执行移动操作，永远没法读到链表的尾部。
-	for e := l.Front(); e != nil; e = e.Next() {
-		val := e.Value.(int)
-		if val == 35 {
-			l.MoveToFront(e)
-		}
-	}
-	for e := l.Front(); e != nil; e = e.Next() {
-		fmt.Printf("%d ", e.Value)
-	}
-	fmt.Println()
-
-	// func (l *List) MoveToBack(e *Element)
-	// MoveToBack将元素e移动到链表的最后一个位置，如果e不是l的元素，l不会被修改。
-	// 同上
-
-	// func (l *List) MoveBefore(e, mark *Element)
-	// MoveBefore将元素e移动到mark的前面。如果e或mark不是l的元素，或者e==mark，l不会被修改。
-
-	// func (l *List) MoveAfter(e, mark *Element)
-	// MoveAfter将元素e移动到mark的后面。如果e或mark不是l的元素，或者e==mark，l不会被修改。
-
-	// func (l *List) Remove(e *Element) interface{}
-	// Remove删除链表中的元素e，并返回e.Value。
-	val := l.Remove(l.Back()).(int)
-	fmt.Println(val)
-	fmt.Println(l.Len())
-	l.Init()
-	fmt.Println(l.Len())
+type Node struct {
+	Val int
+	Idx int
 }
+
+func main() {
+	q := queue.NewQueue[int]()
+	q.PushBack(1)
+	q.PushBack(2)
+	q.PushBack(5)
+	for !q.Empty() {
+		val, _ := q.PopFront()
+		fmt.Println(val)
+	}
+	nq := queue.NewQueue(3.1415926, 5.412)
+	for nq.Size() != 0 {
+		fmt.Println(nq.PopFront())
+	}
+
+	nodes := []*Node{{9, 1}, {6, 2}, {3, 3}}
+	nodeQ := queue.NewQueue(nodes...)
+	for !nodeQ.Empty() {
+		node, _ := nodeQ.PopFront()
+		fmt.Println(node.Val, node.Idx)
+	}
+}
+
+// import (
+// 	"container/list"
+// 	"fmt"
+// )
+
+// func main() {
+// 	// 新建一个链表
+// 	l := list.New()
+
+// 	// func (l *List) PushFront(v interface{}) *Element
+// 	// 头插法插入一个节点，并返回新生成的节点
+// 	l.PushFront(20)
+
+// 	// func (l *List) PushBack(v interface{}) *Element
+// 	// 尾插法插入一个节点，并返回新生成的节点
+// 	l.PushBack(35)
+
+// 	// func (l *List) Front() *Element
+// 	// func (l *List) Back() *Element
+// 	// 输出链表头节点和尾节点的值
+// 	fmt.Printf("head is %d\n", l.Front().Value)
+// 	fmt.Printf("tail is %d\n", l.Back().Value)
+
+// 	other := list.New()
+// 	other.PushFront(1)
+// 	other.PushFront(2)
+// 	other.PushFront(3)
+
+// 	// func (l *List) PushFrontList(other *List)
+// 	// 创建链表other的拷贝, 顺序地以头插法将每个节点插入链表l
+// 	l.PushFrontList(other)
+// 	for e := l.Front(); e != nil; e = e.Next() {
+// 		fmt.Printf("%d ", e.Value)
+// 	}
+// 	fmt.Println()
+
+// 	// func (l *List) PushBackList(other *List)
+// 	// 创建链表other的拷贝, 顺序地以尾插法将每个节点插入链表l
+// 	l.PushBackList(other)
+// 	for e := l.Front(); e != nil; e = e.Next() {
+// 		fmt.Printf("%d ", e.Value)
+// 	}
+// 	fmt.Println()
+
+// 	// func (l *List) InsertBefore(v interface{}, mark *Element) *Element
+// 	// 将一个值为v的新元素插入到mark前面，并返回生成的新元素。
+// 	// 如果mark不是l的元素，l不会被修改。
+
+// 	// func (l *List) InsertAfter(v interface{}, mark *Element) *Element
+// 	// 将一个值为v的新元素插入到mark后面，并返回新生成的元素。
+// 	// 如果mark不是l的元素，l不会被修改。
+// 	for e := l.Front(); e != nil; e = e.Next() {
+// 		x := e.Value.(int)
+// 		if x == 35 {
+// 			l.InsertBefore(25, e)
+// 		} else if x == 20 {
+// 			l.InsertAfter(29, e)
+// 		}
+// 	}
+// 	for e := l.Front(); e != nil; e = e.Next() {
+// 		fmt.Printf("%d ", e.Value)
+// 	}
+// 	fmt.Println()
+
+// 	// func (l *List) MoveToFront(e *Element)
+// 	// MoveToFront将元素e移动到链表的第一个位置，如果e不是l的元素，l不会被修改。
+// 	// 注：下面的代码这样是可以的，但是如果将val==1的节点移动到头部，那么将会出现死循环
+// 	// 因为两个1都被移动到了头部，所以一直在执行移动操作，永远没法读到链表的尾部。
+// 	for e := l.Front(); e != nil; e = e.Next() {
+// 		val := e.Value.(int)
+// 		if val == 35 {
+// 			l.MoveToFront(e)
+// 		}
+// 	}
+// 	for e := l.Front(); e != nil; e = e.Next() {
+// 		fmt.Printf("%d ", e.Value)
+// 	}
+// 	fmt.Println()
+
+// 	// func (l *List) MoveToBack(e *Element)
+// 	// MoveToBack将元素e移动到链表的最后一个位置，如果e不是l的元素，l不会被修改。
+// 	// 同上
+
+// 	// func (l *List) MoveBefore(e, mark *Element)
+// 	// MoveBefore将元素e移动到mark的前面。如果e或mark不是l的元素，或者e==mark，l不会被修改。
+
+// 	// func (l *List) MoveAfter(e, mark *Element)
+// 	// MoveAfter将元素e移动到mark的后面。如果e或mark不是l的元素，或者e==mark，l不会被修改。
+
+// 	// func (l *List) Remove(e *Element) interface{}
+// 	// Remove删除链表中的元素e，并返回e.Value。
+// 	val := l.Remove(l.Back()).(int)
+// 	fmt.Println(val)
+// 	fmt.Println(l.Len())
+// 	l.Init()
+// 	fmt.Println(l.Len())
+// }
 
 // package main
 

@@ -41,11 +41,11 @@ func NewArray(nums []int) NumArray {
 }
 
 func (t *NumArray) Update(index int, val int) {
-	t.UpdateValByIndex(index, val)
+	t.Modify(index, val, 0)
 }
 
 func (t *NumArray) SumRange(left int, right int) int {
-	return t.SumRangeBetweenLR(left, right)
+	return t.Query(left, right, 0)
 }
 
 // leetcode309

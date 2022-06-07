@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"programs/kit/utils"
 	"sort"
+	"strconv"
+	"strings"
 )
 
 // leetcode453
@@ -100,6 +102,111 @@ func FindSubstringInWraproundString(p string) int {
 		res += dp[i]
 	}
 	return res
+}
+
+// leetcode468
+func ValidIPAddress(queryIP string) string {
+	// ipv4
+	words := strings.Split(queryIP, ".")
+	if len(res) == 4 {
+		for _, word := range words {
+			val, err := strconv.Atoi(word)
+			if err != nil || val >= 256 || val < 0 {
+				break
+			}
+		}
+		return "IPv4"
+	}
+	words = strings.Split(queryIP, ":")
+	check := func(ch byte) bool {
+		if ch <= 'F' && ch >= 'A' || ch <= 'f' && ch >= 'a' || ch <= '9' && ch >= '0' {
+			return true
+		}
+		return false
+	}
+	if len(res) == 8 {
+		for _, word := range words {
+			for i := 0; i < len(word); i++ {
+				if !check(word[i]) {
+					break
+				}
+			}
+		}
+		return "IPv6"
+	}
+	return "Neither"
+}
+
+// leetcode473
+func Makesquare(matchsticks []int) bool {
+	sum := 0
+	for _, val := range matchsticks {
+		sum += val
+	}
+	if sum%4 != 0 {
+		return false
+	}
+	t := sum / 4
+	edges := [4]int{}
+	var dfs func(int) bool
+	dfs = func(x int) bool {
+		if x == len(matchsticks) {
+			return true
+		}
+		for i := 0; i < 4; i++ {
+			edges[i] += matchsticks[x]
+			if edges[i] <= t && dfs(x+1) {
+				return true
+			}
+			edges[i] -= matchsticks[x]
+		}
+		return false
+	}
+	return dfs(0)
+}
+
+// 状态压缩+记忆化搜索
+func Makesquare2(matchsticks []int) bool {
+	edgeLen, sum, n := 0, 0, len(matchsticks)
+	dp := make([]int, 1<<n)
+
+	for _, val := range matchsticks {
+		sum += val
+	}
+	if sum%4 != 0 {
+		return false
+	}
+	edgeLen = sum / 4
+
+	var dfs func(int, int) bool
+	dfs = func(status, sum int) bool {
+		if status == 1<<n && sum == edgeLen {
+			return true
+		}
+		if sum > edgeLen {
+			return false
+		}
+		if dp[status] != 0 {
+			return dp[status] == 1
+		}
+
+		for i, val := range matchsticks {
+			if sum == edgeLen {
+				sum = 0
+			}
+			if (status>>i)&i == 1 {
+				continue
+			}
+			if dfs(status|(1<<i), sum+val) {
+				dp[status] = 1
+				return true
+			}
+		}
+		dp[status] = -1
+		return false
+	}
+
+	return dfs(0, 0)
 }
 
 // leetcode474

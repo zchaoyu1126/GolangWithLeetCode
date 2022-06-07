@@ -372,6 +372,15 @@ func MinStickers(stickers []string, target string) int {
 	return -1
 }
 
+// leetcode699
+
+func FallingSquares(positions [][]int) []int {
+	// 1 2 2
+	// 2 4 3
+	// 6 6 1
+	return []int{}
+}
+
 // leetcode700
 func SearchBST700(root *algorithm.TreeNode, val int) *algorithm.TreeNode {
 	cur := root
