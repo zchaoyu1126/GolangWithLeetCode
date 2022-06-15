@@ -330,7 +330,7 @@ func NumSubarrayProductLessThanK713II(nums []int, k int) int {
 			mulV /= nums[l]
 			l++
 		}
-		res++
+		res += r - l + 1
 	}
 	return res
 }
@@ -366,6 +366,36 @@ func FindLength(nums1 []int, nums2 []int) int {
 		}
 	}
 	return res
+}
+
+// leetcode719
+func SmallestDistancePair(nums []int, k int) int {
+	sort.Ints(nums)
+	n := len(nums)
+	l, r := 0, nums[n-1]-nums[0]
+
+	getCount := func(nums []int, m int) int {
+		res := 0
+		l, r := 0, 0
+		for r < len(nums) {
+			for nums[r]-nums[l] > m {
+				l++
+			}
+			res += r - l
+			r++
+		}
+		return res
+	}
+	for l <= r {
+		m := (l + r) >> 1
+		// 找大于等于k的左边界
+		if getCount(nums, m) >= k {
+			r = m - 1
+		} else {
+			l = m + 1
+		}
+	}
+	return l
 }
 
 // leetcode725

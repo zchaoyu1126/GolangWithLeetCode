@@ -523,3 +523,30 @@ func NextGreaterElement3(nums1, nums2 []int) []int {
 	}
 	return res
 }
+
+// leetcode498
+func FindDiagonalOrder(mat [][]int) []int {
+	curSum := 0
+	n, m := len(mat), len(mat[0])
+	res := make([]int, 0, n*m)
+	for curSum < n+m-1 {
+		if curSum%2 == 0 {
+			x := utils.MinNum(curSum, n)
+			for x > 0 && curSum-x < m {
+				y := curSum - x
+				res = append(res, mat[x][y])
+				x--
+			}
+
+		} else {
+			y := utils.MinNum(curSum, m)
+			for y > 0 && curSum-y < n {
+				x := curSum - y
+				res = append(res, mat[x][y])
+				y--
+			}
+		}
+		curSum++
+	}
+	return res
+}
