@@ -10,20 +10,6 @@ import (
 	"unicode"
 )
 
-// leetcode700
-func SearchBST(root *algorithm.TreeNode, val int) *algorithm.TreeNode {
-	for root != nil {
-		if root.Val == val {
-			return root
-		} else if root.Val < val {
-			root = root.Right
-		} else {
-			root = root.Left
-		}
-	}
-	return root
-}
-
 // leetcode701
 func InsertIntoBST(root *algorithm.TreeNode, val int) *algorithm.TreeNode {
 	if root == nil {
@@ -346,6 +332,121 @@ func MaxProfit6(prices []int, fee int) int {
 	}
 	return dp[n-1][0]
 }
+
+// leetcode715
+// 线段树动态开点
+// 假设不会出现还没跟踪就删除的情况
+type dsegTreeNode struct {
+	l, m, r    int
+	val        int
+	add        int
+	lson, rson *dsegTreeNode
+}
+
+type DsegTree struct {
+	root *dsegTreeNode
+}
+
+func NewDsegTreeNode(l, r int) *dsegTreeNode {
+	return &dsegTreeNode{
+		l:   l,
+		r:   r,
+		m:   (l + r) >> 1,
+		val: -1,
+	}
+}
+
+func NewDsegTree(l, r int) *DsegTree {
+	return &DsegTree{root: NewDsegTreeNode(l, r)}
+}
+
+func (t *DsegTree) pushUp(node *dsegTreeNode) {
+	node.val = utils.MinNum(node.lson.val, node.rson.val)
+}
+
+func (t *DsegTree) pushDown(node *dsegTreeNode) {
+	if node.lson == nil {
+		node.lson = NewDsegTreeNode(node.l, node.m)
+	}
+	if node.rson == nil {
+		node.rson = NewDsegTreeNode(node.m+1, node.r)
+	}
+	if node.add != 0 {
+		node.lson.val = node.add
+		node.rson.val = node.add
+		node.lson.add = node.add
+		node.rson.add = node.add
+		node.add = 0
+	}
+}
+
+func (t *DsegTree) modify(l, r, val int, node *dsegTreeNode) {
+	if l > r {
+		return
+	}
+	if l <= node.l && node.r <= r {
+		node.val = val
+		node.add = val
+		return
+	}
+	t.pushDown(node)
+	if l <= node.m {
+		t.modify(l, r, val, node.lson)
+	}
+	if r > node.m {
+		t.modify(l, r, val, node.rson)
+	}
+	t.pushUp(node)
+}
+
+func (t *DsegTree) query(l, r int, node *dsegTreeNode) int {
+	if l > r {
+		return 1e9
+	}
+	if l <= node.l && node.r <= r {
+		return node.val
+	}
+	t.pushDown(node)
+	// 和左子区间有交集
+	var val int = 1e9
+	if l <= node.m {
+		val = utils.MinNum(val, t.query(l, r, node.lson))
+	}
+	// 和右子区间有交集
+	if r > node.m {
+		val = utils.MinNum(val, t.query(l, r, node.rson))
+	}
+	return val
+}
+
+type RangeModule struct {
+	tree *DsegTree
+}
+
+func NewRangeModule() RangeModule {
+	return RangeModule{tree: NewDsegTree(1, 1e9+1)}
+}
+
+func (r *RangeModule) AddRange(left int, right int) {
+	r.tree.modify(left, right-1, 1, r.tree.root)
+}
+
+func (r *RangeModule) QueryRange(left int, right int) bool {
+	ans := r.tree.query(left, right-1, r.tree.root)
+	return ans > 0
+}
+
+func (r *RangeModule) RemoveRange(left int, right int) {
+	r.tree.modify(left, right-1, -1, r.tree.root)
+}
+
+/**
+ * Your RangeModule object will be instantiated and called as such:
+ * obj := Constructor();
+ * obj.AddRange(left,right);
+ * param_2 := obj.QueryRange(left,right);
+ * obj.RemoveRange(left,right);
+ */
 
 // leetcode718
 func FindLength(nums1 []int, nums2 []int) int {

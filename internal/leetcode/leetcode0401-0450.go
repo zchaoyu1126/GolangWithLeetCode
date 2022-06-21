@@ -6,6 +6,7 @@ import (
 	"programs/kit/utils"
 	"sort"
 	"strconv"
+	"strings"
 )
 
 // leetcode404
@@ -340,6 +341,59 @@ func NumberOfBoomerangs(points [][]int) int {
 		}
 	}
 	return ans
+}
+
+// leetcode449
+type Codec struct {
+}
+
+func NewCodec() Codec {
+	return Codec{}
+}
+func (c *Codec) PrevOrder(root *algorithm.TreeNode, builder *strings.Builder) {
+	if root == nil {
+		return
+	}
+	str := strconv.Itoa(root.Val) + " "
+	builder.WriteString(str)
+	c.PrevOrder(root.Left, builder)
+	c.PrevOrder(root.Right, builder)
+}
+
+func (c *Codec) BuildTree(preorder []int) *algorithm.TreeNode {
+	if len(preorder) == 0 {
+		return nil
+	}
+	val := preorder[0]
+	node := &algorithm.TreeNode{Val: val}
+	idx := sort.Search(len(preorder), func(x int) bool {
+		return preorder[x] > val
+	})
+	node.Left = c.BuildTree(preorder[1:idx])
+	node.Right = c.BuildTree(preorder[idx:])
+	return node
+}
+
+// Serializes a tree to a single string.
+func (c *Codec) Serialize(root *algorithm.TreeNode) string {
+	var builder strings.Builder
+	c.PrevOrder(root, &builder)
+	return builder.String()
+}
+
+// Deserializes your encoded data to tree.
+func (c *Codec) Deserialize(data string) *algorithm.TreeNode {
+	if data == "" {
+		return nil
+	}
+	data = strings.Trim(data, " ")
+	vals := strings.Split(data, " ")
+	nums := make([]int, 0, len(vals))
+	for _, val := range vals {
+		num, _ := strconv.Atoi(val)
+		nums = append(nums, num)
+	}
+	return c.BuildTree(nums)
 }
 
 // leetcode450

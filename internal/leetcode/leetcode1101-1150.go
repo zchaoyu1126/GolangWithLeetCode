@@ -1,6 +1,14 @@
 package leetcode
 
-import "programs/kit/utils"
+import (
+	"programs/kit/utils"
+	"strings"
+)
+
+// leetcode1108
+func DefangIPaddr(address string) string {
+	return strings.ReplaceAll(address, ".", "[.]")
+}
 
 // leetcode1109
 func CorpFlightBookings(bookings [][]int, n int) []int {

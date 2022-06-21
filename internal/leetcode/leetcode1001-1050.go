@@ -4,6 +4,7 @@ import (
 	"container/heap"
 	"math"
 	"math/rand"
+	"programs/internal/algorithmingo/algorithm"
 	"programs/kit/utils"
 	"sort"
 	"time"
@@ -44,6 +45,23 @@ func LargestSumAfterKNegations(nums []int, k int) int {
 			return arrSum(nums) - 2*min
 		}
 	}
+}
+
+// leetcode1008
+func BstFromPreorder(preorder []int) *algorithm.TreeNode {
+	// 方法一，将preorder排序，那么问题就转为根据先序和中序，构造二叉树
+	// 方法二，root, [left], [right]，递归
+	if len(preorder) == 0 {
+		return nil
+	}
+	val := preorder[0]
+	node := &algorithm.TreeNode{Val: preorder[0]}
+	idx := sort.Search(len(preorder), func(x int) bool {
+		return preorder[x] > val
+	})
+	node.Left = BstFromPreorder(preorder[1:idx])
+	node.Right = BstFromPreorder(preorder[idx:])
+	return node
 }
 
 // leetcode1034
@@ -109,6 +127,23 @@ func MaxUncrossedLines(nums1 []int, nums2 []int) int {
 		}
 	}
 	return dp[n][m]
+}
+
+// leetcode1038
+func BstToGst(root *algorithm.TreeNode) *algorithm.TreeNode {
+	sum := 0
+	var inorder func(*algorithm.TreeNode)
+	inorder = func(root *algorithm.TreeNode) {
+		if root == nil {
+			return
+		}
+		inorder(root.Right)
+		sum += root.Val
+		root.Val = sum
+		inorder(root.Left)
+	}
+	inorder(root)
+	return root
 }
 
 // leetcode1044

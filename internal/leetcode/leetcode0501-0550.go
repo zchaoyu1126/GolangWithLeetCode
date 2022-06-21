@@ -344,6 +344,29 @@ func GetMinimumDifference(root *algorithm.TreeNode) int {
 	return res
 }
 
+// leetcode532
+func FindPairs(nums []int, k int) int {
+	if k < 0 {
+		return 0
+	}
+	res := 0
+	sort.Ints(nums)
+	for i := 0; i < len(nums); i++ {
+		if i > 0 && nums[i] == nums[i-1] {
+			continue
+		}
+		for j := i + 1; j < len(nums); j++ {
+			if j > i+1 && nums[j] == nums[j-1] {
+				continue
+			}
+			if nums[j]-nums[i] == k || nums[i]-nums[j] == k {
+				res++
+			}
+		}
+	}
+	return res
+}
+
 // leetcode538
 func ConvertBST(root *algorithm.TreeNode) *algorithm.TreeNode {
 	var traversal func(root *algorithm.TreeNode)

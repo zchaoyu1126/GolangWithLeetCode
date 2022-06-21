@@ -382,16 +382,15 @@ func FallingSquares(positions [][]int) []int {
 }
 
 // leetcode700
-func SearchBST700(root *algorithm.TreeNode, val int) *algorithm.TreeNode {
-	cur := root
-	for cur != nil {
-		if cur.Val == val {
-			return cur
-		} else if cur.Val < val {
-			cur = cur.Right
+func SearchBST(root *algorithm.TreeNode, val int) *algorithm.TreeNode {
+	for root != nil {
+		if root.Val == val {
+			return root
+		} else if root.Val < val {
+			root = root.Right
 		} else {
-			cur = cur.Left
+			root = root.Left
 		}
 	}
-	return nil
+	return root
 }
