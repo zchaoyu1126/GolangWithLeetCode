@@ -1,6 +1,6 @@
 package poj
 
-import "programs/kit/utils"
+import "github.com/zchaoyu1126/coding-practice/utils"
 
 func MaxLength(hight [][]int) int {
 	row := len(hight)
