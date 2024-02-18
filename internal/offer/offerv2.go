@@ -156,7 +156,7 @@ func AlienOrder(words []string) string {
 		queue = queue[1:]
 		cnt++
 		res = append(res, byte(front+'a'))
-		for key, _ := range mp[front] {
+		for key := range mp[front] {
 			degree[key]--
 			if degree[key] == 0 {
 				queue = append(queue, key)

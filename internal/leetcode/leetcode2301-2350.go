@@ -1,7 +1,9 @@
 package leetcode
 
 import (
+	"programs/internal/algorithmingo/algorithm"
 	"sort"
+	"strings"
 )
 
 // leetcode2303
@@ -124,4 +126,115 @@ func DistinctNames(ideas []string) int64 {
 	}
 
 	return int64(res * 2)
+}
+
+func minNumberOfHours(initialEnergy int, initialExperience int, energy []int, experience []int) int {
+	res := 0
+	for i := 0; i < len(energy); i++ {
+		if initialEnergy <= energy[i] {
+			res += energy[i] - initialEnergy + 1
+			initialEnergy = energy[i] + 1
+		}
+		initialEnergy -= energy[i]
+	}
+
+	for i := 0; i < len(experience); i++ {
+		if initialExperience <= experience[i] {
+			res += experience[i] - initialExperience + 1
+			initialEnergy = experience[i] + 1
+		}
+		initialExperience += experience[i]
+	}
+	return res
+}
+
+func largestPalindromic(num string) string {
+	mp := make([]int, 10)
+	for i := 0; i < len(num); i++ {
+		mp[(num[i]-'0')]++
+	}
+	var sb strings.Builder
+	stack := []byte{}
+	// 偶数的结束了
+	flag := false // 允许填入0
+	for i := 9; i >= 0; i-- {
+		if i == 0 && !flag {
+			break
+		}
+		for mp[i] >= 2 {
+			sb.WriteByte(byte('0' + i))
+			stack = append(stack, byte('0'+i))
+			mp[i] -= 2
+			flag = true
+		}
+	}
+	for i := 9; i >= 0; i-- {
+		if mp[i] > 0 {
+			sb.WriteByte(byte('0' + i))
+			break
+		}
+	}
+	for len(stack) != 0 {
+		top := stack[len(stack)-1]
+		stack = stack[:len(stack)-1]
+		sb.WriteByte(top)
+	}	
+	return sb.String()
+}
+
+func amountOfTime(root *algorithm.TreeNode, start int) int {
+	if root == nil {
+		return 0
+	}
+
+	mp := make(map[*algorithm.TreeNode]*algorithm.TreeNode)
+	visited := make(map[*algorithm.TreeNode]struct{})
+	mp[root] = nil
+	var dfs func(root *algorithm.TreeNode)
+	var infectionNode *algorithm.TreeNode
+	dfs = func(root *algorithm.TreeNode) {
+		if root.Val == start {
+			infectionNode = root
+		}
+		if root.Left != nil {
+			mp[root.Left] = root
+			dfs(root.Left)
+		}
+		if root.Right != nil {
+			mp[root.Right] = root
+			dfs(root.Right)
+		}
+	}
+	dfs(root)
+	queue := []*algorithm.TreeNode{}
+	queue = append(queue, infectionNode)
+
+	res := 0
+	for len(queue) != 0 {
+		size := len(queue)
+		for size != 0 {
+			size--
+			front := queue[0]
+			// fmt.Println(front.Val)
+			visited[front] = struct{}{}
+			queue = queue[1:]
+			if front.Left != nil {
+				if _, has := visited[front.Left]; !has {
+					queue = append(queue, front.Left)
+				}
+			}
+			if front.Right != nil {
+				if _, has := visited[front.Right]; !has {
+					queue = append(queue, front.Right)
+				}
+			}
+			if mp[front] != nil {
+				if _, has := visited[mp[front]]; !has {
+					queue = append(queue, mp[front])
+				}
+			}
+		}
+		res++
+	}
+	return res - 1
 }

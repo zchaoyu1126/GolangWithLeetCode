@@ -1,4 +1,4 @@
-package algorithm
+package example
 
 import (
 	"fmt"
@@ -154,6 +154,7 @@ func MulOLP(x, y OneLetPoly) OneLetPoly {
 		}
 		cx = cx.Next
 	}
+	
 	return res
 }
 

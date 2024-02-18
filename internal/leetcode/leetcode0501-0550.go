@@ -142,6 +142,28 @@ func FindBottomLeftValue(root *algorithm.TreeNode) int {
 	return res
 }
 
+func FindBottomLeftValue2(root *algorithm.TreeNode) int {
+	var res *algorithm.TreeNode
+	queue := make([]*algorithm.TreeNode, 0, 50)
+	queue = append(queue, root)
+	for len(queue) != 0 {
+		size := len(queue)
+		res = queue[0]
+		for size > 0 {
+			size--
+			front := queue[0]
+			queue = queue[1:]
+			if front.Left != nil {
+				queue = append(queue, front.Left)
+			}
+			if front.Right != nil {
+				queue = append(queue, front.Right)
+			}
+		}
+	}
+	return res.Val
+}
+
 // leetcode515
 func LargestValues(root *algorithm.TreeNode) []int {
 	if root == nil {

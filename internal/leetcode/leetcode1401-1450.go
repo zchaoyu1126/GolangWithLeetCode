@@ -98,3 +98,19 @@ func MaxPower(s string) int {
 	//fmt.Println(max)
 	return max
 }
+
+// leetcode1450 差分数组
+func BusyStudent(startTime []int, endTime []int, queryTime int) int {
+	n := len(startTime)
+	diff := make([]int, 1005)
+	sum := make([]int, 1005)
+	for i := 0; i < n; i++ {
+		start, end := startTime[i], endTime[i]
+		diff[start]++
+		diff[end+1]--
+	}
+	for i := 1; i <= 1004; i++ {
+		sum[i] = sum[i-1] + diff[i]
+	}
+	return sum[queryTime]
+}

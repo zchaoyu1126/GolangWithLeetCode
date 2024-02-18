@@ -1,37 +1,120 @@
 package main
 
-import (
-	"fmt"
+import "fmt"
 
-	"github.com/zchaoyu1126/gostl/queue"
-)
+type TreeNode struct {
+	Val   int
+	Left  *TreeNode
+	Right *TreeNode
+}
 
-type Node struct {
-	Val int
-	Idx int
+func constructBinaryTree(array []int) *TreeNode {
+	var root *TreeNode
+	nodes := make([]*TreeNode, len(array))
+
+	// 初始化二叉树节点
+	for i := 0; i < len(nodes); i++ {
+		var node *TreeNode
+		if array[i] != -1 {
+			node = &TreeNode{Val: array[i]}
+		}
+		nodes[i] = node
+		if i == 0 {
+			root = node
+		}
+	}
+	// 串联节点
+	for i := 0; i*2+2 < len(array); i++ {
+		if nodes[i] != nil {
+			nodes[i].Left = nodes[i*2+1]
+			nodes[i].Right = nodes[i*2+2]
+		}
+	}
+	return root
+}
+
+func printBinaryTree(root *TreeNode, n int) {
+	var queue []*TreeNode
+	if root != nil {
+		queue = append(queue, root)
+	}
+
+	for len(queue) > 0 {
+		size := len(queue)
+		for size > 0 {
+			size--
+			top := queue[0]
+			queue = queue[1:]
+			fmt.Print(top.Val)
+			if top.Left != nil {
+				queue = append(queue, top.Left)
+			}
+			if top.Right != nil {
+				queue = append(queue, top.Right)
+			}
+		}
+	}
+
 }
 
 func main() {
-	q := queue.NewQueue[int]()
-	q.PushBack(1)
-	q.PushBack(2)
-	q.PushBack(5)
-	for !q.Empty() {
-		val, _ := q.PopFront()
-		fmt.Println(val)
-	}
-	nq := queue.NewQueue(3.1415926, 5.412)
-	for nq.Size() != 0 {
-		fmt.Println(nq.PopFront())
-	}
-
-	nodes := []*Node{{9, 1}, {6, 2}, {3, 3}}
-	nodeQ := queue.NewQueue(nodes...)
-	for !nodeQ.Empty() {
-		node, _ := nodeQ.PopFront()
-		fmt.Println(node.Val, node.Idx)
-	}
+	array := []int{4, 1, 6, 0, 2, -1, 7, -1, -1, -1, 3, -1, 8}
+	root := constructBinaryTree(array)
+	printBinaryTree(root, len(array))
 }
+
+// package main
+
+// import (
+// 	"fmt"
+// 	"strconv"
+// 	"strings"
+// )
+
+// func main() {
+// 	res := "[10,20,30]"
+// 	res = strings.TrimLeft(res, "[")
+// 	res = strings.TrimRight(res, "]")
+// 	numsStr := strings.Split(res, ",")
+
+// 	num, _ := strconv.Atoi("20")
+// 	fmt.Println(numsStr, num)
+// }
+
+// package main
+
+// import (
+// 	"fmt"
+
+// 	"github.com/zchaoyu1126/gostl/queue"
+// )
+
+// type Node struct {
+// 	Val int
+// 	Idx int
+// }
+
+// func main() {
+// 	q := queue.NewQueue[int]()
+// 	q.PushBack(1)
+// 	q.PushBack(2)
+// 	q.PushBack(5)
+// 	for !q.Empty() {
+// 		val, _ := q.PopFront()
+// 		fmt.Println(val)
+// 	}
+// 	nq := queue.NewQueue(3.1415926, 5.412)
+// 	for nq.Size() != 0 {
+// 		fmt.Println(nq.PopFront())
+// 	}
+
+// 	nodes := []*Node{{9, 1}, {6, 2}, {3, 3}}
+// 	nodeQ := queue.NewQueue(nodes...)
+// 	for !nodeQ.Empty() {
+// 		node, _ := nodeQ.PopFront()
+// 		fmt.Println(node.Val, node.Idx)
+// 	}
+// }
 
 // import (
 // 	"container/list"

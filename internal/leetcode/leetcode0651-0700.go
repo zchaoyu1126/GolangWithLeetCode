@@ -9,6 +9,62 @@ import (
 	"strings"
 )
 
+// leetcode652
+func FindDuplicateSubtrees(root *algorithm.TreeNode) []*algorithm.TreeNode {
+	emptyV := 105
+	leftV := 1331
+	rightV := 1331 * 1331
+	mp := make(map[int][]*algorithm.TreeNode)
+	var dfs func(*algorithm.TreeNode) int
+	dfs = func(node *algorithm.TreeNode) int {
+		if node == nil {
+			return emptyV
+		}
+		v := leftV*dfs(node.Left) + rightV*dfs(node.Right) + node.Val + 200
+		if _, ok := mp[v]; !ok {
+			mp[v] = make([]*algorithm.TreeNode, 0, 10)
+		}
+		mp[v] = append(mp[v], node)
+		return v
+	}
+	var checkSame func(node1, node2 *algorithm.TreeNode) bool
+	checkSame = func(node1, node2 *algorithm.TreeNode) bool {
+		if node1 == nil && node2 == nil {
+			return true
+		}
+		if node1 != nil && node2 == nil {
+			return false
+		}
+		if node1 == nil && node2 != nil {
+			return false
+		}
+		if node1.Val != node2.Val {
+			return false
+		}
+		return checkSame(node1.Left, node2.Left) && checkSame(node1.Right, node2.Right)
+	}
+	check := func(nodes []*algorithm.TreeNode) int {
+		for i := 0; i < len(nodes); i++ {
+			for j := i + 1; j < len(nodes); j++ {
+				if checkSame(nodes[i], nodes[j]) {
+					return i
+				}
+			}
+		}
+		return -1
+	}
+	res := []*algorithm.TreeNode{}
+	dfs(root)
+	for _, nodes := range mp {
+		if len(nodes) >= 2 {
+			if idx := check(nodes); idx != -1 {
+				res = append(res, nodes[idx])
+			}
+		}
+	}
+	return res
+}
+
 // leetcode654
 func ConstructMaximumBinaryTree(nums []int) *algorithm.TreeNode {
 	if len(nums) == 0 {

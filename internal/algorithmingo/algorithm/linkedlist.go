@@ -17,8 +17,25 @@ type LinkedList struct {
 	DummyHead *ListNode
 }
 
-func NewLinkedList() LinkedList {
+func NewLinkedList(arr ...int) LinkedList {
+	if len(arr) == 0 {
+		return newLinkedListDefalut()
+	}
+	return newLinkedListWithArr(arr)
+}
+
+func newLinkedListDefalut() LinkedList {
 	return LinkedList{0, &ListNode{-1, nil}}
+}
+
+func newLinkedListWithArr(arr []int) LinkedList {
+	dummyHead := &ListNode{}
+	cur := dummyHead
+	for i := 0; i < len(arr); i++ {
+		cur.Next = &ListNode{Val: arr[i]}
+		cur = cur.Next
+	}
+	return LinkedList{len(arr), dummyHead}
 }
 
 func (l *LinkedList) AddAtHead(val int) {
@@ -115,7 +132,7 @@ type DListNode struct {
 	Next *DListNode
 }
 
-func NewDListNode() DLinkedList {
+func NewDLinkedList() DLinkedList {
 	node1, node2 := &DListNode{Val: -1}, &DListNode{Val: -1}
 	node1.Next = node2
 	node2.Prev = node1
